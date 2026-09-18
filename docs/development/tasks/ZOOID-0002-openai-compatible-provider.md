@@ -3,155 +3,129 @@
 ## Metadata
 
 - ID: ZOOID-0002
-- Status: IN_PROGRESS
+- Status: COMPLETE
 - Started: 2026-09-18
+- Completed: 2026-09-18
 - Repository: `funggier/Zooid-Agent`
 - Branch: `agent/zooid-0002-openai-compatible-provider`
 - Base/main SHA: `a477fe7abedee21e03f171e249c5c8bdac7cdecb`
-- Previous task: [ZOOID-0001 — Basic Chat Foundation](ZOOID-0001-basic-chat-foundation.md)
+- Last verified implementation SHA: `26f5da9924892826bbcbe968f28cea72e639f889`
+- Verified workflow: `35359099312` — SUCCESS, Ubuntu + Windows, 22/22 tests
+- Previous task: [ZOOID-0001](ZOOID-0001-basic-chat-foundation.md)
+- Report: [ZOOID-0002 report](../reports/ZOOID-0002-openai-compatible-provider-report.md)
 - Phase: Basic Provider Chat
+- External live smoke: NOT_RUN
 
-## Why this task exists
+## Why this task existed
 
-ZOOID-0001 proved the deterministic internal path with a fake provider. Zooid still cannot reach a real model endpoint.
+ZOOID-0001 proved the deterministic internal path with a fake provider. Zooid still needed a real HTTP-capable boundary before Router/Ticket/Recovery work could be justified.
 
-The next smallest boundary is therefore not Router/Ticket/Recovery. It is:
+The implemented path is:
 
-`Zooid config -> provider adapter -> HTTP protocol -> model endpoint -> normalized ChatResult`
+`Zooid config -> provider adapter -> HTTP Chat Completions -> normalized ChatResult`
 
-The first protocol is named **OpenAI-compatible Chat Completions** rather than an OpenAI-specific provider. This keeps the adapter tied to a wire contract instead of a vendor identity and permits compatible local endpoints such as Ollama without making Zooid depend on an external SDK.
+The adapter is named **OpenAI-compatible** rather than OpenAI-specific so the code is tied to a wire contract, not a vendor identity.
 
-## External protocol evidence
+## Protocol evidence
 
-At task start, official Ollama material documents an OpenAI-compatible `/v1/chat/completions` endpoint. OpenAI's current model documentation emphasizes the Responses API for current OpenAI models, so this task does not claim Chat Completions is the preferred OpenAI-native integration. A future OpenAI Responses adapter can remain separate.
+Checked 2026-09-18:
 
-Reference checked 2026-09-18:
-- https://ollama.com/blog/openai-compatibility
-- https://platform.openai.com/docs/models
+- Ollama documents OpenAI compatibility including `/v1/chat/completions`: https://ollama.com/blog/openai-compatibility
+- OpenAI current model documentation centers current model integration around the Responses API: https://platform.openai.com/docs/models
 
-## Goal
+Therefore this task does not claim Chat Completions is the preferred OpenAI-native future path. A Responses adapter can remain independent.
 
-Create a real HTTP-capable provider path that:
+## Result
 
-1. keeps provider configuration outside transcripts and source control;
-2. uses native Node.js HTTP/fetch capability with no mandatory SDK dependency;
-3. maps Zooid messages to OpenAI-compatible Chat Completions JSON;
-4. normalizes success, auth, rate-limit, timeout, network and malformed-response behavior;
-5. preserves user-cancel semantics from ZOOID-0001;
-6. can be exercised end-to-end against a local HTTP fixture in CI;
-7. can point at a real compatible endpoint through environment configuration without code changes.
+Implemented:
 
-## Scope
+- [x] provider selection: fake vs openai-compatible
+- [x] base URL/model/API-key/timeout settings
+- [x] secret-safe validation and provider banner
+- [x] native Node `fetch`; no SDK dependency
+- [x] request/response mapping
+- [x] history provenance filtering
+- [x] optional Bearer auth
+- [x] 401/403/429/5xx normalization
+- [x] Retry-After parsing
+- [x] malformed JSON/schema handling
+- [x] timeout vs user cancellation
+- [x] local loopback HTTP fixtures
+- [x] CLI end-to-end HTTP fixture smoke
+- [x] API-key non-leak assertion
+- [x] path-with-spaces regression
+- [x] blank-input transcript regression
+- [x] Ubuntu CI
+- [x] Windows CI
+- [x] documentation/example configuration
 
-In scope:
+Explicitly not included:
 
-- provider selection setting: fake vs openai-compatible
-- base URL/model/API-key/timeout configuration
-- secret-safe validation and error messages
-- native HTTP adapter
-- request/response mapping
-- HTTP/error normalization
-- Retry-After parsing where available
-- cancellation + timeout behavior
-- local loopback HTTP fixture tests
-- CLI path using selected provider
-- README/configuration documentation
-- Ubuntu/Windows CI
-- task/report/coordination evidence
-
-Out of scope:
-
-- multiple providers active in one session
-- provider Router/fallback policy
+- external live model qualification
+- provider Router/fallback
 - OpenAI Responses API
-- streaming
-- tool calls
-- vision/audio
+- streaming/tool calls/vision/audio
 - model discovery
-- credential storage/keychain
+- credential keychain
 - Ticket/Recovery/Project/Group
-- background execution
 
 ## Configuration contract
 
-Proposed environment surface:
-
 - `ZOOID_PROVIDER=fake|openai-compatible`
-- `ZOOID_PROVIDER_BASE_URL=<base ending in /v1 or equivalent>`
+- `ZOOID_PROVIDER_BASE_URL=<http(s) base>`
 - `ZOOID_PROVIDER_MODEL=<model id>`
 - `ZOOID_PROVIDER_API_KEY=<optional bearer token>`
 - `ZOOID_PROVIDER_TIMEOUT_MS=<optional positive integer>`
 
-Secrets must never be written to transcript, task, report or normal CLI output.
-
-The default remains `fake` so a clean checkout remains deterministic and credential-free.
+Default remains fake. `.env` files are ignored and are not auto-loaded.
 
 ## Context mapping rule
 
-A real adapter must not blindly replay every stored message.
-
-For the current request it may send:
+The adapter sends:
 - prior `complete` user/assistant messages;
-- the current `pending` user message.
+- current `pending` user message.
 
-It must exclude prior `failed` or `interrupted` messages, because the provider did not successfully consume/answer those attempts and replaying them silently would change provenance.
+It excludes prior `failed` and `interrupted` messages so failed attempts are not silently replayed as accepted conversational history.
 
-## Work slices
+## RED → GREEN history
 
-### A — Config boundary
-- [ ] typed provider settings
-- [ ] fake default
-- [ ] validation without secret disclosure
-- [ ] timeout parsing tests
+### Initial implementation
 
-### B — HTTP adapter
-- [ ] request mapping
-- [ ] optional Bearer auth
-- [ ] response mapping
-- [ ] error/status normalization
-- [ ] malformed JSON/schema handling
-- [ ] timeout vs user-cancel distinction
+Commit `11bf0566e943db21c08075448e01ff3da9c4bf10` added configuration, provider runtime, HTTP adapter and deterministic tests.
 
-### C — CLI integration
-- [ ] construct provider from settings
-- [ ] safe provider/model banner
-- [ ] preserve fake default
-- [ ] missing/invalid config fails before dispatch
+Workflow `35358864158` failed because the adapter used TypeScript constructor parameter properties. Node 24 strip-only mode rejects that syntax with `ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX`.
 
-### D — Deterministic protocol tests
-- [ ] local HTTP success fixture
-- [ ] request-body/history filtering assertion
-- [ ] auth header assertion without logging secret
-- [ ] 401/403 auth
-- [ ] 429 + Retry-After
-- [ ] 5xx/network
-- [ ] malformed JSON/schema
-- [ ] timeout
-- [ ] user cancellation
-- [ ] CLI -> local HTTP fixture -> stdout smoke
+### Minimal repair
 
-### E — Evidence
-- [ ] Ubuntu CI green
-- [ ] Windows CI green
-- [ ] report exact verified SHA/workflow
-- [ ] document whether any external live endpoint was tested
-- [ ] do not mark live endpoint VERIFIED unless observed
+Commit `04c0c434dbbbd4c4dda5b56e5dd20e117f51e240` replaced parameter properties with explicit erasable class fields/assignments. No compiler or package dependency was added.
 
-## Acceptance
+Workflow `35358927800` then completed SUCCESS on Ubuntu and Windows with 19 tests.
 
-This task may close with protocol/transport **VERIFIED against deterministic local HTTP fixtures** even if no external credential is available. In that case the report must state `EXTERNAL_LIVE_SMOKE: NOT_RUN` and the Basic Provider Chat phase remains open for live qualification.
+### Acceptance completion
 
-The phase itself must not be declared complete until an authorized real compatible model endpoint returns a successful multi-turn chat and the result is recorded without exposing secrets.
+Additional tests covered data-root paths with spaces, blank input, HTTP 403 and HTTP 503.
 
-## Progress
+Final verified implementation SHA:
 
-### 2026-09-18 — Task opened
+`26f5da9924892826bbcbe968f28cea72e639f889`
 
-- ZOOID-0001 merged to main at `a477fe7abedee21e03f171e249c5c8bdac7cdecb`.
-- Main post-merge workflow `35358295752` passed Ubuntu and Windows.
-- Created branch `agent/zooid-0002-openai-compatible-provider`.
-- Selected protocol-oriented adapter boundary; vendor routing remains explicitly out of scope.
+Workflow `35359099312` completed SUCCESS on Ubuntu and Windows with:
+
+- tests: 22
+- pass: 22
+- fail: 0
+- Node: v24.20.0 on observed Ubuntu job
+
+## Non-claim
+
+`EXTERNAL_LIVE_SMOKE: NOT_RUN`
+
+GitHub CI used loopback HTTP fixtures only. No external API key, Ollama model, OpenAI endpoint or other real model endpoint was contacted.
+
+Therefore ZOOID-0002 is complete as a **protocol/transport task**, while the **Basic Provider Chat phase remains open**.
 
 ## Next action
 
-Implement typed provider configuration and HTTP adapter tests before modifying the CLI construction path.
+Create ZOOID-0003 for external compatible endpoint qualification. It must prove at least one authorized real model endpoint with multi-turn history before Router work starts.
+
+If no reachable endpoint is available to the executing session, ZOOID-0003 should be recorded as BLOCKED rather than pretending the live gate passed.

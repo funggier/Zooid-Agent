@@ -4,17 +4,17 @@
 **Repository:** funggier/Zooid-Agent  
 **Planning:** DOCUMENTED  
 **Implementation:** IN_PROGRESS  
-**Execution mode:** RUNNING  
-**Active task:** ZOOID-0002 — OpenAI-Compatible Provider Adapter  
-**Working branch:** `agent/zooid-0002-openai-compatible-provider`  
-**Main baseline:** `a477fe7abedee21e03f171e249c5c8bdac7cdecb` / workflow `35358295752` SUCCESS
+**Execution mode:** READY_FOR_NEXT_TASK  
+**Last completed task:** ZOOID-0002 — OpenAI-Compatible Provider Adapter  
+**Last verified implementation:** `26f5da9924892826bbcbe968f28cea72e639f889`  
+**Verified workflow:** `35359099312` — SUCCESS on Ubuntu + Windows
 
 ## Phase status
 
 | Phase | Plan | Code | Acceptance |
 | --- | --- | --- | --- |
-| Basic provider chat | DOCUMENTED | FOUNDATION_COMPLETE; REAL_ADAPTER_IN_PROGRESS | FOUNDATION_CI_PASS; LIVE_PENDING |
-| Provider routing | DOCUMENTED | NOT_STARTED | NOT_RUN |
+| Basic provider chat | DOCUMENTED | FOUNDATION_COMPLETE; COMPATIBLE_TRANSPORT_VERIFIED | CI_PASS; EXTERNAL_LIVE_PENDING |
+| Provider routing | DOCUMENTED | NOT_STARTED | BLOCKED_BY_BASIC_CHAT_LIVE_GATE |
 | Durable tickets | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Recovery | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Context and Project | DOCUMENTED; four subplans | NOT_STARTED | NOT_RUN |
@@ -24,20 +24,26 @@
 
 ## Current verified capability
 
-Main can run deterministic local CLI chat through the fake provider, persist/reopen ordered sessions, normalize failures and cancel pending work without a late assistant response.
+Zooid can:
 
-ZOOID-0002 is adding a real HTTP-capable OpenAI-compatible Chat Completions adapter while keeping provider selection/configuration outside transcripts and source control.
+- run deterministic fake-provider CLI chat;
+- persist/reopen ordered sessions;
+- preserve corrupt session files;
+- cancel pending requests without late assistant replies;
+- select an OpenAI-compatible HTTP transport through environment configuration;
+- send non-streaming Chat Completions-compatible requests;
+- normalize auth/rate-limit/network/timeout/malformed-response cases;
+- protect configured API-key values from normal CLI output;
+- pass the complete 22-test suite on Ubuntu and Windows.
 
-## Provider boundary decision
+## Current non-claim
 
-The first adapter is protocol-oriented, not branded as the OpenAI provider. Official Ollama material documents an OpenAI-compatible Chat Completions endpoint, while current OpenAI models also support the Responses API. This prevents the first transport implementation from defining future provider-routing architecture.
+`EXTERNAL_LIVE_SMOKE: NOT_RUN`
+
+No real model endpoint has been qualified by this GitHub task. Basic Provider Chat therefore remains OPEN.
 
 ## Next action
 
-Implement configuration + HTTP adapter under ZOOID-0002, prove it with local loopback fixtures on Ubuntu/Windows, then record external live-smoke status separately.
+Open ZOOID-0003 for external compatible endpoint qualification and prove a multi-turn real-model conversation. If execution cannot reach an authorized endpoint, persist a BLOCKED checkpoint.
 
-Router work remains blocked until the one-provider Basic Provider Chat gate is resolved.
-
-## Decisions still requiring evidence
-
-External live endpoint/model qualification, user-machine Windows qualification, later SQLite driver, packaging/update mechanism and CNX baseline revision remain evidence-driven decisions.
+Do not begin Provider Routing until this gate is resolved.
