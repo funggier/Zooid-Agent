@@ -78,13 +78,13 @@ Planned files:
 
 Acceptance:
 
-- [ ] ProviderDescriptor contract exists with stable provider ID and model/capability declarations.
-- [ ] register at least two deterministic adapters/descriptors with different capabilities.
-- [ ] duplicate provider ID is rejected.
-- [ ] missing provider ID/model is rejected before provider dispatch.
-- [ ] unsupported model is rejected before provider dispatch.
-- [ ] unsupported role/content capability is explicit.
-- [ ] registry tests require no network/model inference.
+- [x] ProviderDescriptor contract exists with stable provider ID and model/capability declarations.
+- [x] register at least two deterministic adapters/descriptors with different capabilities.
+- [x] duplicate provider ID is rejected.
+- [x] missing provider ID/model is rejected before provider dispatch.
+- [x] unsupported model is rejected before provider dispatch.
+- [x] unsupported role/content capability is explicit.
+- [x] registry tests require no network/model inference.
 
 ### B — Deterministic manual route decision
 
@@ -95,11 +95,11 @@ Planned files:
 
 Acceptance:
 
-- [ ] RouteRequest contains session, selected provider/model and required capabilities.
-- [ ] RouteDecision records route ID, provider/model, adapter revision, compatibility result and reason.
-- [ ] route decision is deterministic for identical validated input.
-- [ ] route rejects incompatibility before adapter/network call.
-- [ ] no automatic fallback exists in this phase.
+- [x] RouteRequest contains session, selected provider/model and required capabilities.
+- [x] RouteDecision records route ID, provider/model, adapter revision, compatibility result and reason.
+- [x] route decision is deterministic for identical validated input.
+- [x] route rejects incompatibility before adapter/network call.
+- [x] no automatic fallback exists in this phase.
 
 ### C — Same-session switching
 
@@ -169,6 +169,53 @@ Every production change must record:
 - Slow inference must be distinguishable from provider failure through configurable timeout/cancellation semantics.
 - A future live acceptance will re-run the large model with an intentionally extended waiting policy rather than the earlier 180-second interactive gate.
 
+### 2026-09-18 — Work Package A verified
+
+TDD:
+- RED observed locally before implementation: `ERR_MODULE_NOT_FOUND` for `src/providers/registry.ts`.
+- Production/test commit: `0c49d9d58b8c386209b461de6a64dbc7ac408e54`.
+- Workflow: `35365344223` — SUCCESS on Ubuntu + Windows.
+- Tests: 29 passed / 0 failed.
+- No live provider/model/network dispatch used by registry tests.
+
+Implemented:
+- `ProviderDescriptor`
+- `ProviderRequirements`
+- `ProviderCompatibilityResult`
+- `ProviderRegistry`
+- explicit registry error codes
+- deterministic capability evaluation for role/content/streaming/usage/context requirements.
+
+The planned `provider-runtime.ts` integration was intentionally not expanded in this slice; the existing runtime remains unchanged until route selection is integrated into ChatService/CLI.
+
+### 2026-09-18 — Work Package B verified
+
+TDD RED:
+- test-only commit: `dd61bec6b8f5efbf181763fac81a687ccee2cbdb`
+- workflow: `35365567556`
+- expected failure: 29 pass / 1 fail
+- exact failure: `ERR_MODULE_NOT_FOUND` for `src/providers/router.ts`.
+
+Minimal GREEN:
+- implementation SHA: `823d3ff9b5670729f5391a4d4c2f1774036847c3`
+- workflow: `35365663955` — SUCCESS on Ubuntu + Windows
+- tests: 33 passed / 0 failed
+
+Verified behavior:
+- explicit provider/model selection only;
+- deterministic route snapshot and route ID;
+- adapter revision recorded in the decision;
+- incompatible capabilities return a rejected decision before dispatch;
+- unknown provider and unsupported model fail before dispatch;
+- no automatic fallback from an incompatible selected provider to another compatible provider;
+- switching explicit provider changes the route snapshot while preserving Zooid session identity.
+
+### 2026-09-18 — Local Windows resource-pressure observation
+
+During local verification, Windows reported approximately 51.33 GB committed out of a 51.46 GB commit limit. The fixed 20 GB pagefile was effectively full and automatic pagefile management was disabled. Under that host pressure, Node test processes produced heap/thread-start failures even though GitHub clean runners passed the same repository.
+
+This is recorded as host environment pressure, not a Zooid regression. No pagefile setting and no unrelated running model/process was changed automatically.
+
 ## Next action
 
-Implement Work Package A using tests first, with no network dependency and no automatic fallback.
+Implement Work Package C: bind an accepted route snapshot to ChatService dispatch and message attribution, then add CLI manual route selection and deterministic A → B → A same-session tests.

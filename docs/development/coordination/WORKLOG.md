@@ -1,5 +1,32 @@
 # Worklog
 
+## 2026-09-18 — ZOOID-0004 Registry and Router foundation GREEN
+
+Work Package A:
+- SHA `0c49d9d58b8c386209b461de6a64dbc7ac408e54`
+- workflow `35365344223`
+- SUCCESS Ubuntu + Windows
+- 29/29 tests
+
+Work Package B used an explicit GitHub-runner RED → GREEN cycle:
+- RED SHA `dd61bec6b8f5efbf181763fac81a687ccee2cbdb`
+- workflow `35365567556`
+- expected failure because `src/providers/router.ts` did not yet exist
+- 29 existing tests passed, 1 new router test file failed
+- minimal implementation SHA `823d3ff9b5670729f5391a4d4c2f1774036847c3`
+- workflow `35365663955`
+- SUCCESS Ubuntu + Windows
+- 33/33 tests
+
+Router now produces deterministic explicit route snapshots, performs capability rejection before dispatch, and never silently falls back to another registered provider.
+
+Local host note: Windows commit charge was observed at ~51.33/51.46 GB with a fixed 20 GB pagefile effectively full. Local Node test workers could fail to allocate threads/heap under this pressure. No pagefile or unrelated process/model settings were changed; clean CI remains the verification authority for this milestone.
+
+Next: same-session route switching and provider/model attribution.
+
+---
+
+
 ## 2026-09-18 — Single slow-model baseline clarified
 
 The user explicitly required Zooid to remain usable with `qwen3.8:27b` as the only model even when inference is very slow.
