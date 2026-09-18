@@ -1,34 +1,46 @@
 # Development Status
 
-**Updated:** 2026-09-08  
-**Repository:** funggier/Zooid-Agent — new repository  
+**Updated:** 2026-09-18  
+**Repository:** funggier/Zooid-Agent  
 **Planning:** DOCUMENTED  
-**Implementation:** NOT_STARTED  
-**Execution mode:** WAITING_FOR_USER_START
+**Implementation:** IN_PROGRESS  
+**Execution mode:** READY_FOR_NEXT_TASK  
+**Last completed task:** ZOOID-0001 — Basic Chat Foundation  
+**Last verified implementation:** `0da31b465846823cb09b8b64bfa48ca5879e0c58`
 
 ## Phase status
 
 | Phase | Plan | Code | Acceptance |
 | --- | --- | --- | --- |
-| Basic provider chat | DOCUMENTED | NOT_STARTED | NOT_RUN |
+| Basic provider chat | DOCUMENTED | FOUNDATION_COMPLETE; LIVE_PROVIDER_PENDING | FOUNDATION_CI_PASS |
 | Provider routing | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Durable tickets | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Recovery | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Context and Project | DOCUMENTED; four subplans | NOT_STARTED | NOT_RUN |
 | Group coordination | DOCUMENTED | NOT_STARTED | NOT_RUN |
-| Clean lifecycle | CROSS_PHASE_PLAN | NOT_STARTED | NOT_RUN |
+| Clean lifecycle | CROSS_PHASE_PLAN | FOUNDATION_RULES_APPLIED | PARTIAL |
 | CNX baseline | AUDIT_PROTOCOL_DOCUMENTED | NOT_EVALUATED | NOT_RUN |
 
-## Current deliverable
+## Current verified capability
 
-จัดทำ docs/development พร้อมเหตุผล สถาปัตยกรรม แผนทุกขั้น contracts/work packages/acceptance และ handoff จากการสนทนา เอกสารเก่าของ Hermes-derived fork ไม่ใช่ active plan ของ repository ใหม่นี้
+Zooid can run a deterministic local CLI chat through an explicit provider boundary, persist/reopen ordered sessions, normalize failures and cancel a pending request without appending a late assistant response.
+
+GitHub Actions workflow `35357816628` passed the complete foundation suite on Ubuntu and Windows at source SHA `0da31b465846823cb09b8b64bfa48ca5879e0c58`.
+
+This does not yet mean Zooid can talk to a real model/provider.
+
+## Development-history policy
+
+All GitHub development work uses sequential files under `docs/development/tasks/`:
+
+`ZOOID-0001`, `ZOOID-0002`, ...
+
+Task numbers are development-history IDs, not release versions. Each task records origin/reason, scope, progress, evidence, decisions, blockers and exact next action. Completed/superseded tasks remain in history.
 
 ## Next action
 
-เมื่อผู้ใช้สั่งเริ่ม ให้ claim [prepare-basic-chat](../tasks/prepare-basic-chat.md) และทำ stack/provider assessment ก่อน foundation implementation ตาม [handoff](../guides/development-handoff.md)
+Merge ZOOID-0001 to `main` after closure checks, then open ZOOID-0002 for first real provider configuration/adapter qualification. Router work remains blocked until one real provider path is proven.
 
-## Decisions requiring evidence
+## Decisions still requiring evidence
 
-runtime/packaging stack, first live provider, SQLite driver, Windows support matrix และ CNX baseline revision ยังต้องตรวจจากสภาพแวดล้อมจริง ตาม [decision register](../decisions/design-decisions.md)
-
-ไม่มี background job/watch service ถูกสร้างจากงานเอกสารนี้
+First live provider/protocol, user-machine Windows qualification, later SQLite driver, packaging/update mechanism and CNX baseline revision remain evidence-driven decisions. No secret or live installation state belongs in the repository.

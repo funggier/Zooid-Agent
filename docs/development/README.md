@@ -1,12 +1,21 @@
 # Development Plan
 
-เอกสารนี้เป็นจุดเริ่มต้นของแผนสร้าง Zooid ใหม่ ครอบคลุมเหตุผล องค์ประกอบ ลำดับงาน ขอบเขตข้อมูล การตรวจรับ และการส่งต่องานให้ผู้พัฒนาหรือ CogentNexus-OpenClaw
+เอกสารนี้เป็นศูนย์กลางแผนและประวัติการพัฒนา Zooid ครอบคลุมเหตุผล องค์ประกอบ ลำดับงาน ขอบเขตข้อมูล การตรวจรับ และ durable handoff
 
-**สถานะ:** DESIGN_DOCUMENTED / IMPLEMENTATION_NOT_STARTED  
+**สถานะ:** IMPLEMENTATION_IN_PROGRESS  
 **วันที่ตั้งต้น:** 2026-09-08  
+**Implementation เริ่ม:** 2026-09-18  
 **Repository:** [funggier/Zooid-Agent](https://github.com/funggier/Zooid-Agent)
 
-## อ่านตามลำดับ
+## เริ่มอ่านเมื่อรับช่วงงาน
+
+1. [Active work](coordination/ACTIVE.md)
+2. [Development status](coordination/STATUS.md)
+3. [Numbered task ledger](tasks/README.md)
+4. task/report ล่าสุดที่ ACTIVE อ้างถึง
+5. phase/architecture/acceptance ที่เกี่ยวข้อง
+
+## เอกสารหลัก
 
 | เอกสาร | ใช้ตอบคำถาม |
 | --- | --- |
@@ -24,11 +33,11 @@
 | [CNX baseline](acceptance/cogentnexus-baseline.md) | เทียบผลลัพธ์กับระบบเดิมโดยไม่คัดลอกข้อสันนิษฐาน |
 | [Handoff](guides/development-handoff.md) | ผู้พัฒนาเริ่มและส่งต่องานอย่างไร |
 | [Naming](guides/naming-and-documentation.md) | ตั้งชื่อและรักษาเอกสารอย่างไร |
-| [Status](coordination/STATUS.md) / [Active](coordination/ACTIVE.md) / [Worklog](coordination/WORKLOG.md) | ตอนนี้อยู่ตรงไหน |
+| [Worklog](coordination/WORKLOG.md) | timeline checkpoint สำคัญ |
 
 ## แผนรายขั้น
 
-1. [Basic provider chat](phases/basic-provider-chat.md)
+1. [Basic provider chat](phases/basic-provider-chat.md) — foundation verified; live provider pending
 2. [Provider routing](phases/provider-routing.md)
 3. [Durable tickets](phases/durable-tickets.md)
 4. [Recovery](phases/recovery.md)
@@ -37,11 +46,21 @@
 
 ขั้นที่ 5 มีแผนย่อย: [durable knowledge](phases/context/durable-knowledge.md), [bounded context](phases/context/bounded-context.md), [ephemeral review](phases/context/ephemeral-review.md), [Project runtime](phases/context/project-runtime.md)
 
-## วิธีตีความแผน
+## Task ↔ Branch model
 
-เอกสารชุดนี้เป็น product/architecture plan พร้อม work packages และ acceptance scenarios ไม่ใช่คำยืนยันว่า feature ทำงานแล้ว ส่วนที่เป็นข้อเสนอทางเทคนิคระบุไว้ชัดเจน และจะยืนยันด้วยงานทดลองที่มีเกณฑ์ตัดสินก่อนผูกกับ dependency จริง
+Branch เป็น execution workspace ส่วน task/report เป็น durable project memory
 
-ทุกขั้นต้องได้ชิ้นงานที่ใช้งานได้ในขอบเขตของตน ไม่ต้องสร้างโครงสร้างขั้นสุดท้ายทั้งหมดก่อนแชตครั้งแรก งานถัดไปที่พร้อมเตรียมคือ [prepare-basic-chat](tasks/prepare-basic-chat.md) การพัฒนาโปรแกรมเริ่มเมื่อผู้ใช้สั่ง
+ค่าเริ่มต้น:
+
+`ZOOID-xxxx semantic task <-> agent/zooid-xxxx-semantic-branch`
+
+เมื่อ task เสร็จ branch อาจ merge/delete ได้ แต่ task/report ต้องคงอยู่ใน Git history/main. Task number ไม่ใช่ release version.
+
+## Current implementation evidence
+
+[ZOOID-0001](tasks/ZOOID-0001-basic-chat-foundation.md) สร้าง runnable fake-provider chat foundation และผ่าน GitHub Actions บน Ubuntu/Windows ที่ implementation SHA `0da31b465846823cb09b8b64bfa48ca5879e0c58`.
+
+งานถัดไปยังอยู่ใน Basic Provider Chat: first real provider configuration/adapter qualification.
 
 ## Templates
 

@@ -1,0 +1,4 @@
+.zooid-data/
+node_modules/
+dist/
+*.log
