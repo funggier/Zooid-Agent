@@ -9,6 +9,12 @@ import {
   evaluateProviderCompatibility,
 } from "./registry.ts";
 
+export interface RouteSelection {
+  providerId: string;
+  model: string;
+  requiredCapabilities?: ProviderRequirements;
+}
+
 export interface RouteRequest {
   requestId: string;
   sessionId: string;

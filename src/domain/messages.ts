@@ -3,6 +3,14 @@ import { randomUUID } from "node:crypto";
 export type MessageRole = "user" | "assistant";
 export type MessageStatus = "pending" | "complete" | "interrupted" | "failed";
 
+export interface MessageRoute {
+  routeId: string;
+  requestId: string;
+  providerId: string;
+  model: string;
+  adapterRevision: string;
+}
+
 export interface ChatMessage {
   id: string;
   sessionId: string;
@@ -11,6 +19,8 @@ export interface ChatMessage {
   text: string;
   status: MessageStatus;
   createdAt: string;
+  route?: MessageRoute;
+  providerResponseId?: string;
 }
 
 export interface ChatSession {
@@ -37,6 +47,8 @@ export function createMessage(input: {
   text: string;
   status?: MessageStatus;
   now?: Date;
+  route?: MessageRoute;
+  providerResponseId?: string;
 }): ChatMessage {
   return {
     id: randomUUID(),
@@ -46,6 +58,10 @@ export function createMessage(input: {
     text: input.text,
     status: input.status ?? "pending",
     createdAt: (input.now ?? new Date()).toISOString(),
+    ...(input.route ? { route: { ...input.route } } : {}),
+    ...(input.providerResponseId
+      ? { providerResponseId: input.providerResponseId }
+      : {}),
   };
 }
 
