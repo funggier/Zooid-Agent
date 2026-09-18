@@ -1,5 +1,33 @@
 # Worklog
 
+## 2026-09-19 — ZOOID-0004 real routed CLI PASS and closure
+
+A clean clone of `agent/zooid-0004-provider-routing` at head `8aab78abaf070e3a605a7304aad63033ff8e975e` was executed on authorized Windows host `CDQ-P`.
+
+Production path:
+`CLI → ProviderRegistry → ProviderRouter → routed ChatService → OpenAI-compatible adapter → local Ollama`.
+
+Model: `qwen3:1.7b`.
+
+Observed PASS:
+- `/route` reported `openai-compatible/qwen3:1.7b`;
+- real response included exact token `ROUTED_OK`;
+- exit code 0;
+- two complete persisted messages;
+- identical route ID on user/assistant pair;
+- provider response ID persisted.
+
+Evidence root: `T:\\Zooid-Agent-routing-evidence\\20260919T003339`.
+
+Host remained under high Windows commit pressure (~50.79/51.46 GB, fixed pagefile effectively full). Both 1.7B and 27B models were already resident; no unrelated model/process was stopped or modified.
+
+The dedicated `qwen3.8:27b` extended-wait acceptance remains required later. ZOOID-0004 does not treat the older 180-second timeout as unsupported-model evidence.
+
+Draft PR #4 opened. Provider Configuration/Discovery moves to ZOOID-0005 after merge.
+
+---
+
+
 ## 2026-09-18 — ZOOID-0004 same-session routing and CLI GREEN
 
 Work Package C1 RED → GREEN:

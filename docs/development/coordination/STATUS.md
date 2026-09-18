@@ -1,10 +1,10 @@
 # Development Status
 
-**Updated:** 2026-09-18  
+**Updated:** 2026-09-19  
 **Repository:** funggier/Zooid-Agent  
 **Planning:** DOCUMENTED  
-**Implementation:** IN_PROGRESS  
-**Execution mode:** RUNNING  
+**Implementation:** ZOOID-0004_COMPLETE_CANDIDATE  
+**Execution mode:** WAITING_FOR_MERGE  
 **Active task:** ZOOID-0004 — Provider Routing Foundation  
 **Working branch:** `agent/zooid-0004-provider-routing`  
 **Verified main baseline:** `f129f99fe6b3f25b3e9a22f26715b0d9a0051ffd`  
@@ -15,7 +15,7 @@
 | Phase | Plan | Code | Acceptance |
 | --- | --- | --- | --- |
 | Basic provider chat | DOCUMENTED | COMPLETE | PASS — real local Ollama multi-turn |
-| Provider routing | DOCUMENTED | REGISTRY_ROUTER_SWITCHING_CLI_VERIFIED; LIVE_ROUTED_ACCEPTANCE_PENDING | PARTIAL |
+| Provider routing | DOCUMENTED | ZOOID-0004 COMPLETE CANDIDATE | PASS — deterministic switching + real routed Ollama |
 | Durable tickets | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Recovery | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Context and Project | DOCUMENTED; four subplans | NOT_STARTED | NOT_RUN |
@@ -79,6 +79,24 @@ Work Package C2:
 
 The production CLI now uses ProviderRegistry → ProviderRouter → routed ChatService. Route provenance is persisted before dispatch and remains stable across next-route changes.
 
+## Real routed CLI acceptance
+
+On authorized device `CDQ-P`, a clean clone at head `8aab78abaf070e3a605a7304aad63033ff8e975e` ran the production CLI against local Ollama through:
+
+`ProviderRegistry → ProviderRouter → routed ChatService → OpenAI-compatible adapter → qwen3:1.7b`
+
+Observed:
+- route: `openai-compatible/qwen3:1.7b`
+- response token: `ROUTED_OK`
+- process exit: 0
+- message count: 2
+- statuses: complete/complete
+- same persisted route ID across user/assistant: true
+- provider response ID present: true
+- result: PASS
+
+This does not qualify `qwen3.8:27b` latency. Dedicated extended-wait slow-model acceptance remains a separate requirement.
+
 ## Next action
 
-Run the new routed CLI path against the real local Ollama `qwen3:1.7b` endpoint for a fast live acceptance.
+Verify PR #4 closure CI, merge to main, verify post-merge CI, then start ZOOID-0005 Provider Configuration/Discovery.

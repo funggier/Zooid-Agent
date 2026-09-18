@@ -3,8 +3,9 @@
 ## Metadata
 
 - ID: ZOOID-0004
-- Status: IN_PROGRESS
+- Status: COMPLETE
 - Started: 2026-09-18
+- Completed: 2026-09-19
 - Repository: `funggier/Zooid-Agent`
 - Branch: `agent/zooid-0004-provider-routing`
 - Base/main SHA: `f129f99fe6b3f25b3e9a22f26715b0d9a0051ffd`
@@ -12,6 +13,11 @@
 - Previous task: [ZOOID-0003 — External Live Provider Qualification](ZOOID-0003-live-provider-qualification.md)
 - Phase: Provider Routing
 - Primary phase plan: [Provider Routing](../phases/provider-routing.md)
+- Verified implementation SHA: `8b3926b2406695ad1475ffc1f80a3c0b04d23bd1`
+- Verified implementation workflow: `35374806274` — SUCCESS, Ubuntu + Windows, 40/40 tests
+- Live acceptance head: `8aab78abaf070e3a605a7304aad63033ff8e975e`
+- Pull request: #4
+- Final report: [ZOOID-0004 Provider Routing Foundation Report](../reports/ZOOID-0004-provider-routing-report.md)
 
 ## Origin and reason
 
@@ -120,11 +126,11 @@ Acceptance:
 - [x] provider failure does not silently change route.
 - [x] smaller context/capability target produces explicit pre-dispatch rejection when applicable.
 
-### D — Provider configuration and discovery follow-on
+### Follow-on — Provider configuration and discovery
 
-This is now an explicit Provider Routing design requirement, but implementation follows the C integration boundary so configuration reload semantics can be tested against real route snapshots.
+This direction remains approved, but its implementation is **not part of ZOOID-0004 closure**. It moves to the next numbered task, ZOOID-0005, so Provider Routing Foundation can close on a tested boundary instead of expanding indefinitely.
 
-Acceptance direction:
+ZOOID-0005 acceptance direction:
 
 - [ ] Adapter, Provider Instance and Model are separate identities.
 - [ ] provider endpoint/account using an existing adapter can be added/disabled/removed through configuration without production source edits.
@@ -293,6 +299,65 @@ Verified:
 - invalid selection leaves the previous route active;
 - CLI-routed messages persist provider/model/route attribution.
 
+### 2026-09-19 — Real routed CLI acceptance PASS
+
+Authorized host: `CDQ-P`
+
+Exact source:
+- clean clone: `T:\\Zooid-Agent-routing-acceptance`
+- HEAD: `8aab78abaf070e3a605a7304aad63033ff8e975e`
+- implementation under test: `8b3926b2406695ad1475ffc1f80a3c0b04d23bd1` plus documentation-only closure commits
+
+Runtime:
+- Ollama `0.32.15`
+- endpoint: `http://127.0.0.1:11434/v1`
+- provider: `openai-compatible`
+- model: `qwen3:1.7b`
+- adapter revision: `openai-compatible-chat-completions-r1`
+- timeout setting: 120000 ms
+- authentication: none
+
+Observed:
+- CLI showed current route `openai-compatible/qwen3:1.7b`;
+- real response contained exact token `ROUTED_OK`;
+- CLI exit code: 0;
+- persisted messages: 2;
+- both message statuses: `complete`;
+- user and assistant persisted the same route ID;
+- provider response ID was persisted;
+- evidence summary outcome: PASS;
+- local evidence root: `T:\\Zooid-Agent-routing-evidence\\20260919T003339`.
+
+Host resource note:
+- committed memory was ~50.79 / 51.46 GB;
+- fixed 20 GB pagefile remained effectively full;
+- both `qwen3:1.7b` and `qwen3.8:27b` were already resident in Ollama;
+- no model/process was stopped or reconfigured for this acceptance.
+
+A first shell wrapper attempt failed before Zooid execution because of Windows `cmd /c` quoting around an evidence path. The acceptance was re-run with a PowerShell pipeline using the same clean clone and source SHA; no source repair was required.
+
+### Large-model boundary
+
+This task does **not** claim a routed live PASS for `qwen3.8:27b`.
+
+The user requirement remains: Zooid must support `qwen3.8:27b` as the only model even when inference is very slow. The earlier 180-second timeout remains a timeout-window/performance observation, not evidence of unsupported behavior. A dedicated slow-model acceptance with deliberately extended waiting policy remains required later.
+
+## Result
+
+**PASS**
+
+- Provider registry/capability contract: VERIFIED
+- deterministic manual router: VERIFIED
+- no silent fallback: VERIFIED
+- route snapshot before dispatch: VERIFIED
+- durable provider/model/adapter attribution: VERIFIED
+- A → B → A same-session switching: VERIFIED
+- in-flight next-route change does not relabel prior request: VERIFIED
+- CLI Registry → Router → ChatService path: VERIFIED
+- real local Ollama routed CLI: VERIFIED with `qwen3:1.7b`
+- dedicated `qwen3.8:27b` slow live acceptance: DEFERRED, still required
+- Provider Configuration/Discovery implementation: MOVED TO ZOOID-0005
+
 ## Next action
 
-Run one real local Ollama acceptance through the new routed CLI path using the small model for fast feedback. If that passes, close the routing-foundation acceptance boundary and move Provider Configuration/Discovery into the next numbered implementation task rather than expanding ZOOID-0004 indefinitely.
+Verify final closure CI for PR #4, merge it to `main`, verify post-merge CI, then open ZOOID-0005 from the exact merged baseline.
