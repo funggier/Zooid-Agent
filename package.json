@@ -9,6 +9,6 @@
   },
   "scripts": {
     "chat": "node src/cli/chat.ts",
-    "test": "node --test tests/file-session-store.test.ts tests/chat-service.test.ts tests/fake-provider.test.ts"
+    "test": "node --test tests/file-session-store.test.ts tests/chat-service.test.ts tests/fake-provider.test.ts tests/cli-smoke.test.ts"
   }
 }
