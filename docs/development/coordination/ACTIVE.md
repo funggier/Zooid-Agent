@@ -8,8 +8,8 @@
 - Base post-merge workflow: `35362601729` SUCCESS — Ubuntu + Windows
 - Previous completed task: ZOOID-0003 — real local Ollama multi-turn PASS
 - Current phase: Provider Routing
-- Current slice: Same-session switching integration
-- Next action: RED tests for route snapshot binding, provider attribution and A → B → A same-session switching
+- Current slice: Routed CLI live acceptance
+- Next action: run real local Ollama routed-CLI acceptance with qwen3:1.7b, then close ZOOID-0004 if evidence is clean
 - Automatic fallback: DEFERRED
 - Parallel model inference requirement: NONE
 - Single-model requirement: MUST support `qwen3.8:27b`-only operation even with very high latency
@@ -32,3 +32,13 @@ The real host evidence from ZOOID-0003 is a design constraint: router correctnes
 - B RED workflow: `35365567556` — expected failure, missing router implementation
 - Work Package B GREEN SHA: `823d3ff9b5670729f5391a4d4c2f1774036847c3`
 - B workflow: `35365663955` — SUCCESS, 33/33
+
+
+## Work Package C verified
+
+- C1 RED SHA: `aff7f8bca16f64fa292aa64e94dbb6bffb3f15b5`
+- C1 GREEN SHA: `42c362929fd9c0b842d250502bb004aa5728ba5e`
+- C1 workflow: `35374568973` — SUCCESS, 38/38
+- C2 RED SHA: `dbbb126a775da74f265037714af6e161a74bf548`
+- C2 GREEN SHA: `8b3926b2406695ad1475ffc1f80a3c0b04d23bd1`
+- C2 workflow: `35374806274` — SUCCESS, 40/40

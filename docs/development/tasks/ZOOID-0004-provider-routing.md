@@ -112,13 +112,13 @@ Planned touch points:
 
 Acceptance:
 
-- [ ] CLI can show current provider/model.
-- [ ] user can manually select the next route.
-- [ ] A → B → A keeps one Zooid session ID and monotonic message sequence.
-- [ ] B receives compatible history from neutral transcript.
-- [ ] in-flight A result remains attributed to A even if next route switches to B.
-- [ ] provider failure does not silently change route.
-- [ ] smaller context/capability target produces explicit pre-dispatch rejection when applicable.
+- [x] CLI can show current provider/model.
+- [x] user can manually select the next route.
+- [x] A → B → A keeps one Zooid session ID and monotonic message sequence.
+- [x] B receives compatible history from neutral transcript.
+- [x] in-flight A result remains attributed to A even if next route switches to B.
+- [x] provider failure does not silently change route.
+- [x] smaller context/capability target produces explicit pre-dispatch rejection when applicable.
 
 ### D — Provider configuration and discovery follow-on
 
@@ -250,6 +250,49 @@ Recorded rules:
 - credentials belong to provider instances rather than individual models;
 - CLI and later UI/API must share one management service.
 
+### 2026-09-18 — Work Package C1 routed ChatService verified
+
+TDD RED:
+- test-only SHA: `aff7f8bca16f64fa292aa64e94dbb6bffb3f15b5`
+- workflow: `35374402511`
+- expected failure: 33 existing tests passed; new routed-chat test file failed because route-aware ChatService behavior did not yet exist.
+
+Minimal GREEN:
+- implementation SHA: `42c362929fd9c0b842d250502bb004aa5728ba5e`
+- workflow: `35374568973` — SUCCESS Ubuntu + Windows
+- tests: 38 passed / 0 failed
+
+Verified:
+- selected route is snapshotted before provider dispatch;
+- the pending user message persists routeId/requestId/providerId/model/adapterRevision before network work starts;
+- assistant response preserves the exact same route snapshot plus provider response ID;
+- A → B → A keeps one Zooid session and monotonic sequence;
+- B receives neutral prior user/assistant transcript rather than provider-private state;
+- changing the selected next route while A is in-flight does not relabel A's response;
+- provider failure preserves route provenance and does not dispatch B;
+- incompatible capability selection rejects before transcript mutation or dispatch;
+- legacy ChatService construction remains supported for existing qualification code.
+
+### 2026-09-18 — Work Package C2 CLI routing verified
+
+TDD RED:
+- test-only SHA: `dbbb126a775da74f265037714af6e161a74bf548`
+- workflow: `35374705926`
+- expected failure: 38 pass / 2 fail because `/route` was still treated as normal chat input.
+
+Minimal GREEN:
+- implementation SHA: `8b3926b2406695ad1475ffc1f80a3c0b04d23bd1`
+- workflow: `35374806274` — SUCCESS Ubuntu + Windows
+- tests: 40 passed / 0 failed
+
+Verified:
+- CLI production path now constructs ProviderRegistry → ProviderRouter → routed ChatService;
+- provider runtime exposes a stable ProviderDescriptor;
+- `/route` shows the current provider/model;
+- `/route <provider-id> <model>` validates provider/model before changing the next route;
+- invalid selection leaves the previous route active;
+- CLI-routed messages persist provider/model/route attribution.
+
 ## Next action
 
-Implement Work Package C first: bind an accepted route snapshot to ChatService dispatch and message attribution, then add CLI manual route selection and deterministic A → B → A same-session tests. Provider Configuration/Discovery follows on top of that snapshot boundary.
+Run one real local Ollama acceptance through the new routed CLI path using the small model for fast feedback. If that passes, close the routing-foundation acceptance boundary and move Provider Configuration/Discovery into the next numbered implementation task rather than expanding ZOOID-0004 indefinitely.

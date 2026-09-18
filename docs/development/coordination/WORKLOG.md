@@ -1,5 +1,26 @@
 # Worklog
 
+## 2026-09-18 — ZOOID-0004 same-session routing and CLI GREEN
+
+Work Package C1 RED → GREEN:
+- RED `aff7f8bca16f64fa292aa64e94dbb6bffb3f15b5`, workflow `35374402511`
+- GREEN `42c362929fd9c0b842d250502bb004aa5728ba5e`, workflow `35374568973`
+- SUCCESS Ubuntu + Windows, 38/38 tests
+
+Verified route snapshot persistence before dispatch, A → B → A one-session switching, neutral history transfer, in-flight attribution stability, no silent fallback and pre-dispatch incompatibility rejection.
+
+Work Package C2 RED → GREEN:
+- RED `dbbb126a775da74f265037714af6e161a74bf548`, workflow `35374705926`
+- GREEN `8b3926b2406695ad1475ffc1f80a3c0b04d23bd1`, workflow `35374806274`
+- SUCCESS Ubuntu + Windows, 40/40 tests
+
+CLI now runs through Registry → Router → ChatService and supports explicit `/route` inspection/selection.
+
+Next acceptance: real local Ollama through the routed CLI path using the small model for fast feedback.
+
+---
+
+
 ## 2026-09-18 — Provider catalog/configuration design recorded
 
 User approved the provider/model lifecycle design and requested it be added to the plan.

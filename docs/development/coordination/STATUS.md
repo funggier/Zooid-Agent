@@ -15,7 +15,7 @@
 | Phase | Plan | Code | Acceptance |
 | --- | --- | --- | --- |
 | Basic provider chat | DOCUMENTED | COMPLETE | PASS — real local Ollama multi-turn |
-| Provider routing | DOCUMENTED | REGISTRY_AND_MANUAL_ROUTER_VERIFIED; SWITCHING_IN_PROGRESS | PARTIAL |
+| Provider routing | DOCUMENTED | REGISTRY_ROUTER_SWITCHING_CLI_VERIFIED; LIVE_ROUTED_ACCEPTANCE_PENDING | PARTIAL |
 | Durable tickets | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Recovery | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Context and Project | DOCUMENTED; four subplans | NOT_STARTED | NOT_RUN |
@@ -63,6 +63,22 @@ No automatic fallback or model inference is used by Router control-plane tests.
 
 The authorized Windows host was observed at ~51.33/51.46 GB committed memory with its fixed 20 GB pagefile effectively full. This caused local Node process/thread allocation failures. Clean GitHub runners remained green, so this is tracked separately from Zooid correctness.
 
+## Verified routed ChatService and CLI
+
+Work Package C1:
+- RED `aff7f8bca16f64fa292aa64e94dbb6bffb3f15b5`
+- GREEN `42c362929fd9c0b842d250502bb004aa5728ba5e`
+- workflow `35374568973` SUCCESS Ubuntu + Windows
+- 38/38 tests
+
+Work Package C2:
+- RED `dbbb126a775da74f265037714af6e161a74bf548`
+- GREEN `8b3926b2406695ad1475ffc1f80a3c0b04d23bd1`
+- workflow `35374806274` SUCCESS Ubuntu + Windows
+- 40/40 tests
+
+The production CLI now uses ProviderRegistry → ProviderRouter → routed ChatService. Route provenance is persisted before dispatch and remains stable across next-route changes.
+
 ## Next action
 
-Integrate route snapshots into ChatService/CLI and prove A → B → A same-session switching without changing historical attribution.
+Run the new routed CLI path against the real local Ollama `qwen3:1.7b` endpoint for a fast live acceptance.
