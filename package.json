@@ -10,6 +10,6 @@
   "scripts": {
     "chat": "node src/cli/chat.ts",
     "qualify:provider": "node src/cli/qualify-provider.ts",
-    "test": "node --test tests/file-session-store.test.ts tests/chat-service.test.ts tests/fake-provider.test.ts tests/provider-settings.test.ts tests/openai-compatible-provider.test.ts tests/live-provider-qualification.test.ts tests/provider-registry.test.ts tests/provider-router.test.ts tests/cli-smoke.test.ts tests/cli-provider-smoke.test.ts"
+    "test": "node --test tests/file-session-store.test.ts tests/chat-service.test.ts tests/chat-routing.test.ts tests/fake-provider.test.ts tests/provider-settings.test.ts tests/openai-compatible-provider.test.ts tests/live-provider-qualification.test.ts tests/provider-registry.test.ts tests/provider-router.test.ts tests/cli-smoke.test.ts tests/cli-provider-smoke.test.ts"
   }
 }
