@@ -1,23 +1,21 @@
 # Active Work
 
-- State: READY_FOR_NEXT_TASK
-- Last completed task: [ZOOID-0001 — Basic Chat Foundation](../tasks/ZOOID-0001-basic-chat-foundation.md)
-- Active development task: NONE
-- Next task sequence: ZOOID-0002
-- Completed branch: `agent/zooid-0001-basic-chat-foundation`
-- Base SHA: `ecf1d582d09d9bc1798ad25c643e40f067c6bb23`
-- Last verified implementation SHA: `0da31b465846823cb09b8b64bfa48ca5879e0c58`
+- State: RUNNING
+- Active development task: [ZOOID-0002 — OpenAI-Compatible Provider Adapter](../tasks/ZOOID-0002-openai-compatible-provider.md)
+- Task ID: ZOOID-0002
+- Owner: ChatGPT GitHub development session
+- Branch: `agent/zooid-0002-openai-compatible-provider`
+- Base/main SHA: `a477fe7abedee21e03f171e249c5c8bdac7cdecb`
 - Current phase: Basic Provider Chat
-- Last checkpoint: runnable fake-provider chat foundation verified on Ubuntu + Windows
-- Next action: merge ZOOID-0001 through reviewable PR, then open ZOOID-0002 for first real provider configuration/adapter qualification
-- Remaining risks: live provider not yet selected/qualified; user-machine Windows qualification remains open
-- Evidence: [ZOOID-0001 report](../reports/ZOOID-0001-basic-chat-foundation-report.md)
+- Last completed task: [ZOOID-0001](../tasks/ZOOID-0001-basic-chat-foundation.md)
+- Main baseline CI: workflow `35358295752` SUCCESS on Ubuntu + Windows
+- Last checkpoint: ZOOID-0002 opened from verified main
+- Next action: implement typed provider config + native HTTP adapter with deterministic loopback fixtures
+- Remaining risks: external live endpoint not yet authorized/qualified; streaming/tools are out of scope
 - Background execution: NOT_CONFIGURED
 
 ## Session recovery rule
 
-A new session should read `AGENTS.md`, this file, `STATUS.md`, then the latest numbered task/report.
+A new session should read `AGENTS.md`, this file, `STATUS.md`, then ZOOID-0002 and its latest report/evidence.
 
-The Git branch/ref is authoritative for the current HEAD. Documents record the last verified implementation SHA; they do not attempt to contain the SHA of the commit that contains themselves.
-
-Do not start an unnumbered implementation task. Create ZOOID-0002 before beginning the next implementation scope.
+The Git branch/ref is authoritative for current HEAD. Do not jump to Router until the Basic Provider Chat live-provider gate is explicitly resolved.

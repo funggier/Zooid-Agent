@@ -4,15 +4,16 @@
 **Repository:** funggier/Zooid-Agent  
 **Planning:** DOCUMENTED  
 **Implementation:** IN_PROGRESS  
-**Execution mode:** READY_FOR_NEXT_TASK  
-**Last completed task:** ZOOID-0001 — Basic Chat Foundation  
-**Last verified implementation:** `0da31b465846823cb09b8b64bfa48ca5879e0c58`
+**Execution mode:** RUNNING  
+**Active task:** ZOOID-0002 — OpenAI-Compatible Provider Adapter  
+**Working branch:** `agent/zooid-0002-openai-compatible-provider`  
+**Main baseline:** `a477fe7abedee21e03f171e249c5c8bdac7cdecb` / workflow `35358295752` SUCCESS
 
 ## Phase status
 
 | Phase | Plan | Code | Acceptance |
 | --- | --- | --- | --- |
-| Basic provider chat | DOCUMENTED | FOUNDATION_COMPLETE; LIVE_PROVIDER_PENDING | FOUNDATION_CI_PASS |
+| Basic provider chat | DOCUMENTED | FOUNDATION_COMPLETE; REAL_ADAPTER_IN_PROGRESS | FOUNDATION_CI_PASS; LIVE_PENDING |
 | Provider routing | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Durable tickets | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Recovery | DOCUMENTED | NOT_STARTED | NOT_RUN |
@@ -23,24 +24,20 @@
 
 ## Current verified capability
 
-Zooid can run a deterministic local CLI chat through an explicit provider boundary, persist/reopen ordered sessions, normalize failures and cancel a pending request without appending a late assistant response.
+Main can run deterministic local CLI chat through the fake provider, persist/reopen ordered sessions, normalize failures and cancel pending work without a late assistant response.
 
-GitHub Actions workflow `35357816628` passed the complete foundation suite on Ubuntu and Windows at source SHA `0da31b465846823cb09b8b64bfa48ca5879e0c58`.
+ZOOID-0002 is adding a real HTTP-capable OpenAI-compatible Chat Completions adapter while keeping provider selection/configuration outside transcripts and source control.
 
-This does not yet mean Zooid can talk to a real model/provider.
+## Provider boundary decision
 
-## Development-history policy
-
-All GitHub development work uses sequential files under `docs/development/tasks/`:
-
-`ZOOID-0001`, `ZOOID-0002`, ...
-
-Task numbers are development-history IDs, not release versions. Each task records origin/reason, scope, progress, evidence, decisions, blockers and exact next action. Completed/superseded tasks remain in history.
+The first adapter is protocol-oriented, not branded as the OpenAI provider. Official Ollama material documents an OpenAI-compatible Chat Completions endpoint, while current OpenAI models also support the Responses API. This prevents the first transport implementation from defining future provider-routing architecture.
 
 ## Next action
 
-Merge ZOOID-0001 to `main` after closure checks, then open ZOOID-0002 for first real provider configuration/adapter qualification. Router work remains blocked until one real provider path is proven.
+Implement configuration + HTTP adapter under ZOOID-0002, prove it with local loopback fixtures on Ubuntu/Windows, then record external live-smoke status separately.
+
+Router work remains blocked until the one-provider Basic Provider Chat gate is resolved.
 
 ## Decisions still requiring evidence
 
-First live provider/protocol, user-machine Windows qualification, later SQLite driver, packaging/update mechanism and CNX baseline revision remain evidence-driven decisions. No secret or live installation state belongs in the repository.
+External live endpoint/model qualification, user-machine Windows qualification, later SQLite driver, packaging/update mechanism and CNX baseline revision remain evidence-driven decisions.

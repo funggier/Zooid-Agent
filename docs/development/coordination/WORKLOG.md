@@ -1,5 +1,17 @@
 # Worklog
 
+## 2026-09-18 — ZOOID-0002 provider adapter started
+
+ZOOID-0001 merged through PR #1 to main commit `a477fe7abedee21e03f171e249c5c8bdac7cdecb`. Post-merge workflow `35358295752` passed Ubuntu and Windows.
+
+Opened branch `agent/zooid-0002-openai-compatible-provider` and task [ZOOID-0002](../tasks/ZOOID-0002-openai-compatible-provider.md).
+
+The first external transport is scoped as an OpenAI-compatible Chat Completions **protocol adapter**, not an OpenAI-vendor adapter. This permits deterministic local HTTP fixtures and compatible local endpoints while leaving OpenAI Responses API and future provider routing as separate boundaries.
+
+Next checkpoint: typed provider configuration + native HTTP request/response/error/cancel tests.
+
+---
+
 ## 2026-09-18 — ZOOID-0001 basic chat foundation verified
 
 Implemented a zero-runtime-dependency Node.js 24 / TypeScript foundation with ordered file-backed sessions, provider contract, deterministic fake provider, chat service, CLI and GitHub Actions.
@@ -20,11 +32,7 @@ Detailed evidence: [ZOOID-0001 report](../reports/ZOOID-0001-basic-chat-foundati
 
 ผู้ใช้อนุญาตให้เริ่มพัฒนา Zooid บน GitHub และกำหนดให้ทุกงานมีประวัติ Task อยู่ใน repository เพื่อให้ session ใหม่สามารถอ่านสถานะปัจจุบันและย้อนหลังได้
 
-ตรวจ repository ปัจจุบัน: default branch `main`, baseline commit `ecf1d582d09d9bc1798ad25c643e40f067c6bb23`, implementation เดิมยัง NOT_STARTED
-
-สร้าง working branch `agent/zooid-0001-basic-chat-foundation`, task ledger ที่ `docs/development/tasks/README.md` และเปิด `ZOOID-0001 — Basic Chat Foundation`.
-
-Task sequence เป็นเลขลำดับงานพัฒนา ไม่ใช่ software version และเก็บเหตุผล ขอบเขต progress evidence blocker และ exact next action ไว้ถาวร
+สร้าง task sequence `ZOOID-xxxx` ซึ่งเป็นเลขลำดับงานพัฒนา ไม่ใช่ software version และเก็บเหตุผล ขอบเขต progress evidence blocker และ exact next action ไว้ถาวร
 
 ---
 
@@ -32,8 +40,6 @@ Task sequence เป็นเลขลำดับงานพัฒนา ไ�
 
 ผู้ใช้สร้าง funggier/Zooid-Agent ใหม่และขอเอกสารวางแผนครบด้าน
 
-บันทึกแนวทางสร้างใหม่: Chat → Router → Ticket → Recovery → Context/Project → Group รวม Work Unit ที่ปรับโครงสร้างได้, ephemeral review, one-model scheduling, clean lifecycle และ extension contracts
+บันทึกแนวทางสร้างใหม่: Chat → Router → Ticket → Recovery → Context/Project → Group รวม Work Unit ที่ปรับโครงสร้างได้, ephemeral review, one-model scheduling, clean lifecycle และ extension contracts.
 
-สร้าง root README/AGENTS และ docs/development แยก vision, scope, architecture, phases/subplans, decisions, acceptance, handoff, coordination, task/report templates
-
-สถานะ software ณ checkpoint นี้ยัง NOT_STARTED
+สถานะ software ณ checkpoint นี้ยัง NOT_STARTED.

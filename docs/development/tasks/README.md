@@ -2,6 +2,13 @@
 
 เอกสารในโฟลเดอร์นี้คือประวัติงานพัฒนา Zooid ที่ทำบน GitHub โดยตรง เพื่อให้ session/agent ใหม่สามารถอ่านสถานะปัจจุบันและย้อนดูเหตุผลของงานที่ผ่านมาได้โดยไม่ต้องพึ่งประวัติแชต
 
+## Task index
+
+| ID | Task | Status | Branch / outcome |
+| --- | --- | --- | --- |
+| ZOOID-0001 | [Basic Chat Foundation](ZOOID-0001-basic-chat-foundation.md) | COMPLETE | merged to `main` via PR #1 |
+| ZOOID-0002 | [OpenAI-Compatible Provider Adapter](ZOOID-0002-openai-compatible-provider.md) | IN_PROGRESS | `agent/zooid-0002-openai-compatible-provider` |
+
 ## Naming and ordering
 
 ใช้เลขลำดับคงที่:
