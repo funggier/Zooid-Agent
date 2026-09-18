@@ -8,18 +8,22 @@ Zooid เป็นโครงการสร้างโปรแกรมเ�
 
 ## สถานะ
 
-Zooid มี Basic Chat foundation ที่รันได้จริง และมี OpenAI-compatible Chat Completions transport ที่ผ่าน deterministic HTTP fixtures บน Ubuntu และ Windows
+Basic Provider Chat ผ่าน real-model qualification แล้ว
 
-สิ่งที่ **ยังไม่ถือว่าผ่าน** คือ external live model smoke test. Router, Ticket, Recovery, Project และ Group ยังไม่เริ่ม implementation.
+Verified path:
+`Zooid -> OpenAI-compatible HTTP -> local Ollama -> real model -> persisted multi-turn history`
+
+ZOOID-0003 passed against `qwen3:1.7b` on the real Windows host with exact random-marker recovery across two turns.
+
+Provider Routing is the next implementation phase after ZOOID-0003 merge.
 
 - [ZOOID-0001 — Basic Chat Foundation](docs/development/tasks/ZOOID-0001-basic-chat-foundation.md)
 - [ZOOID-0002 — OpenAI-Compatible Provider Adapter](docs/development/tasks/ZOOID-0002-openai-compatible-provider.md)
+- [ZOOID-0003 — External Live Provider Qualification](docs/development/tasks/ZOOID-0003-live-provider-qualification.md)
 
 ## Runtime
 
-ต้องมี Node.js 24 หรือใหม่กว่า ปัจจุบันไม่มี runtime npm dependency ภายนอก จึงไม่ต้อง `npm install` เพื่อรัน foundation/test suite
-
-ทดสอบ:
+ต้องมี Node.js 24 หรือใหม่กว่า ปัจจุบันไม่มี runtime npm dependency ภายนอก
 
 ```bash
 npm test
@@ -27,61 +31,53 @@ npm test
 
 ## Fake provider mode
 
-ค่าเริ่มต้นเป็น deterministic fake provider:
-
 ```bash
 npm run chat
 ```
 
-เหมาะสำหรับ development/regression test เพราะไม่ต้องใช้ network หรือ credentials
-
 ## OpenAI-compatible provider mode
-
-Zooid รองรับ non-streaming Chat Completions endpoint ที่ `<base-url>/chat/completions`.
 
 Environment variables:
 
 - `ZOOID_PROVIDER=openai-compatible`
-- `ZOOID_PROVIDER_BASE_URL` — เช่น base URL ที่ลงท้ายด้วย `/v1`
+- `ZOOID_PROVIDER_BASE_URL`
 - `ZOOID_PROVIDER_MODEL`
-- `ZOOID_PROVIDER_API_KEY` — optional; ส่งเป็น Bearer token เมื่อกำหนด
+- `ZOOID_PROVIDER_API_KEY` — optional
 - `ZOOID_PROVIDER_TIMEOUT_MS` — optional; default 120000 ms
 
-PowerShell example สำหรับ compatible local endpoint:
+Example:
 
 ```powershell
 $env:ZOOID_PROVIDER = "openai-compatible"
 $env:ZOOID_PROVIDER_BASE_URL = "http://127.0.0.1:11434/v1"
-$env:ZOOID_PROVIDER_MODEL = "gpt-oss:20b"
-# ถ้า endpoint ต้องใช้ token:
-# $env:ZOOID_PROVIDER_API_KEY = "<set-secret-in-shell-only>"
+$env:ZOOID_PROVIDER_MODEL = "qwen3:1.7b"
+Remove-Item Env:ZOOID_PROVIDER_API_KEY -ErrorAction SilentlyContinue
 npm run chat
 ```
 
-Bash example:
+## Live provider qualification
 
-```bash
-export ZOOID_PROVIDER=openai-compatible
-export ZOOID_PROVIDER_BASE_URL=http://127.0.0.1:11434/v1
-export ZOOID_PROVIDER_MODEL='gpt-oss:20b'
-# export ZOOID_PROVIDER_API_KEY='<set-secret-in-shell-only>'
-npm run chat
+```powershell
+npm run qualify:provider
 ```
 
-`.env.example` เป็นเอกสารตัวอย่างเท่านั้น Zooid **ไม่ auto-load .env** ใน checkpoint นี้ และ `.env/.env.*` ถูก ignore เพื่อช่วยลดความเสี่ยง commit secret โดยไม่ตั้งใจ
+PASS requires:
+- real endpoint response;
+- exactly four ordered complete persisted messages;
+- exact recovery of the random marker from the previous turn.
 
-Official Ollama documentation describes OpenAI compatibility for `/v1/chat/completions`: https://ollama.com/blog/openai-compatibility
+ZOOID-0003 verified this against local Ollama `0.32.15` with `qwen3:1.7b`.
 
-ZOOID-0002 ทดสอบ protocol ด้วย local HTTP fixtures เท่านั้น ไม่ได้พิสูจน์ endpoint/model ภายนอกจริง
+A 27B CPU-only model was also observed to exceed practical latency on the same host, which is treated as a performance/resource issue rather than a functional failure.
 
 ## CLI commands
 
-- `/new` สร้าง session ใหม่
-- `/open <session-id>` เปิด session เดิม
-- `/exit` ออกจากโปรแกรม
-- `Ctrl+C` ระหว่าง provider request ใช้ยกเลิก request นั้น
+- `/new`
+- `/open <session-id>`
+- `/exit`
+- `Ctrl+C` during provider request cancels that request
 
-ข้อมูล development session เก็บใน `.zooid-data/` โดยค่าเริ่มต้น หรือกำหนด root แยกด้วย `ZOOID_DATA_DIR`
+Default session data root is `.zooid-data/`, override with `ZOOID_DATA_DIR`.
 
 ## เอกสารการพัฒนา
 
@@ -92,4 +88,4 @@ ZOOID-0002 ทดสอบ protocol ด้วย local HTTP fixtures เท่�
 - [Development reports](docs/development/reports/README.md)
 - [Development handoff](docs/development/guides/development-handoff.md)
 
-Task number เป็นลำดับงานพัฒนาบน GitHub ไม่ใช่เลขเวอร์ชันซอฟต์แวร์ Branch ใช้สำหรับลงมือทำ ส่วน task/report ที่ merge เข้า main เป็นประวัติถาวรของโครงการ
+Task number เป็น development-history sequence ไม่ใช่ software version.

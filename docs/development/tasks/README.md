@@ -7,8 +7,9 @@
 | ID | Task | Status | Branch / outcome |
 | --- | --- | --- | --- |
 | ZOOID-0001 | [Basic Chat Foundation](ZOOID-0001-basic-chat-foundation.md) | COMPLETE | merged to `main` via PR #1 |
-| ZOOID-0002 | [OpenAI-Compatible Provider Adapter](ZOOID-0002-openai-compatible-provider.md) | COMPLETE | protocol/transport verified via PR #2 |
-| ZOOID-0003 | External Live Provider Qualification | NEXT | create after ZOOID-0002 merge |
+| ZOOID-0002 | [OpenAI-Compatible Provider Adapter](ZOOID-0002-openai-compatible-provider.md) | COMPLETE | merged to `main` via PR #2 |
+| ZOOID-0003 | [External Live Provider Qualification](ZOOID-0003-live-provider-qualification.md) | COMPLETE | real Ollama multi-turn PASS; PR #3 ready for merge |
+| ZOOID-0004 | Provider Routing | NEXT | create from verified post-merge main |
 
 ## Naming and ordering
 
