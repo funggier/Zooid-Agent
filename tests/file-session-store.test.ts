@@ -41,3 +41,18 @@ test("preserves a corrupt session file instead of overwriting it", async () => {
     assert.equal(await readFile(path, "utf8"), "{broken-json");
   });
 });
+
+
+test("supports a data root whose path contains spaces", async () => {
+  const parent = await mkdtemp(join(tmpdir(), "zooid-space-parent-"));
+  const root = join(parent, "data root with spaces");
+
+  try {
+    const store = new FileSessionStore(root);
+    const session = await store.create();
+    const reopened = await store.load(session.id);
+    assert.equal(reopened.id, session.id);
+  } finally {
+    await rm(parent, { recursive: true, force: true });
+  }
+});
