@@ -15,13 +15,14 @@
 | --- | --- | --- | --- |
 | R-CHAT | เริ่มจาก provider และแชตพื้นฐาน | [Basic chat](phases/basic-provider-chat.md) | 1 |
 | R-ROUTE | เปลี่ยน provider ใน session เดิม | [Routing](phases/provider-routing.md) | 2 |
+| R-PROVIDER-CONFIG | เพิ่ม/ปิด/ลบ provider instance หรือ model ที่ใช้ adapter เดิมได้จาก configuration โดยไม่แก้ source; protocol ใหม่จึงค่อยเพิ่ม adapter; discovery ไม่ auto-enable และการลบห้ามทำลาย historical attribution | [Routing](phases/provider-routing.md) | 2 |
 | R-TICKET | มี ticket ก่อน recovery | [Tickets](phases/durable-tickets.md) | 3 |
 | R-RECOVER | ฟื้นงานโดยไม่หลงสถานะ/ทำซ้ำไม่รู้ตัว | [Recovery](phases/recovery.md) | 4 |
 | R-CONTEXT | งานยาวใช้ context ที่มีขอบเขต | [Bounded context](phases/context/bounded-context.md) | 5 |
 | R-MEMORY | มีฐานข้อมูลเก็บสิ่งจำเป็นและที่มา | [Data](architecture/data-and-context.md) | 3–5 |
 | R-REVIEW | session ชั่วคราวตรวจงานแล้วส่งคืนหลักฐาน | [Review](phases/context/ephemeral-review.md) | 5 |
 | R-PROJECT | worker/reviewer/controller เดินงานใน Project | [Project](phases/context/project-runtime.md) | 5 |
-| R-SOLO | provider/model เดียวใช้หลายบทบาทแบบสลับได้ | [Execution](architecture/execution-and-recovery.md) | 5 |
+| R-SOLO | provider/model เดียวใช้หลายบทบาทแบบสลับได้; ต้องรองรับการใช้ `qwen3.8:27b` ตัวเดียวแม้ inference ช้ามาก โดยไม่บังคับ helper model | [Execution](architecture/execution-and-recovery.md) | 2–5 |
 | R-GROUP | ประสานหลายหน่วยและเลือกสิ่งที่แชร์ | [Group](phases/group-coordination.md) | 6 |
 | R-RESHAPE | เพิ่ม ลด รวม แยก และเชื่อมระดับได้ | [Work units](architecture/work-unit-model.md) | 5–6 |
 | R-LIFECYCLE | reset/uninstall/install-over/update สะอาด | [Lifecycle](architecture/lifecycle-management.md) | ทุกขั้นตาม resource ที่เพิ่ม |
@@ -40,6 +41,10 @@
 
 - Local-first, ผู้ใช้เดียว, เครื่องเดียว; CLI เป็น interface แรกที่เสนอ
 - Text chat, manual provider switching, persistence ของงานในเครื่อง
+- Provider inventory/configuration ต้องแยก Adapter → Provider Instance → Model; provider/model ที่ใช้ protocol เดิมต้องเพิ่ม/ปิด/ลบได้โดยไม่แก้ source code
+- Model/provider ที่ discover ได้ยังไม่ routable จนกว่าจะ enabled โดย Zooid อย่างชัดเจน; disable/remove ต้องไม่ลบ provenance ของประวัติงานเดิม
+- Single-model operation เป็น baseline; โมเดลเล็ก/หลายโมเดลเป็น optional optimization ไม่ใช่ dependency
+- ต้องรองรับ slow-model mode ที่ timeout ปรับได้และไม่ถือว่าความช้าเพียงอย่างเดียวคือ failure
 - ไม่ตั้ง daemon หรือ scheduled task ในขั้น 1
 - ไม่มีข้อบังคับให้รองรับทุก provider protocol ในครั้งแรก
 - ไม่มี bot fleet, billing, cloud orchestration หรือ cross-machine consensus ใน baseline

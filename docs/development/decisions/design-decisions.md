@@ -10,7 +10,7 @@
 | D-SEQUENCE | USER_DIRECTION | Chat, Router, Ticket, Recovery, Context/Project, Group | feature เพิ่มต้องอ้าง phase และ gate |
 | D-UNIT | USER_DIRECTION | ระดับเป็นรูปแบบ Work Unit ที่ปรับได้ | identity/provenance ต้องไม่ผูกกับชื่อระดับ |
 | D-CLEAN | USER_DIRECTION | lifecycle สะอาดเป็นแกน | resource ใหม่ต้องมี cleanup/recovery plan |
-| D-SOLO | USER_DIRECTION | หนึ่ง model ทำหลายบทบาทได้ | scheduler serial เป็น baseline |
+| D-SOLO | USER_DIRECTION | หนึ่ง model ทำหลายบทบาทได้ รวมถึง `qwen3.8:27b` ตัวเดียวแม้ช้ามาก | scheduler serial เป็น baseline; helper model/parallel inference เป็น optional optimization; timeout/watchdog ต้องไม่เปลี่ยนความช้าเป็น failure โดยพลการ |
 | D-EPHEMERAL | USER_DIRECTION | ใช้ temporary session โดยเฉพาะ review | ต้องรับผล/evidence ก่อน discard |
 | D-CNX | USER_DIRECTION | เรียนรู้/เทียบพื้นฐาน CNX และให้ช่วยพัฒนา | ต้องตรวจ repo revision จริงก่อนอ้างเทียบเท่า |
 | D-STACK | VERIFIED_FOUNDATION | TypeScript + Node.js 24, zero runtime dependencies ผ่าน foundation tests/CLI บน Ubuntu+Windows | ใช้ต่อเป็น baseline; ทบทวนเมื่อมีหลักฐานว่าข้อกำหนดถัดไปทำไม่ได้หรือ packaging มีต้นทุนที่ยอมรับไม่ได้ |
@@ -20,6 +20,7 @@
 | D-RETRIEVAL | DESIGN_PROPOSAL | metadata/lexical ก่อน vector | เพิ่ม vector เมื่อ benchmark ชี้ประโยชน์ที่วัดได้ |
 | D-REVIEW | DESIGN_PROPOSAL | rubric + deterministic evidence gate | fresh reviewer ไม่รับประกันความจริง |
 | D-UPDATES | USER_DIRECTION | Zooid มี release/update ของตัวเอง | ไม่ auto-sync upstream; imports review รายส่วน |
+| D-PROVIDER-CATALOG | USER_DIRECTION | แยก Adapter, Provider Instance และ Model; provider/model บน protocol เดิมจัดการด้วย config, protocol ใหม่จึงเพิ่ม adapter; discovery ไม่เท่ากับ permission | ใช้ reversible disable ก่อน destructive removal; routable = available ∩ enabled; removal ห้ามแก้ historical attribution; credentials อยู่ขอบเขต provider |
 | D-MONETIZE | DEFERRED_BY_USER | พักเรื่องรายได้ | ไม่เพิ่ม billing ใน roadmap ปัจจุบัน |
 
 ## D-STACK evidence

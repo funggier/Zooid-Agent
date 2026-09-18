@@ -1,6 +1,11 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
-import { createSession, type ChatSession } from "../domain/messages.ts";
+import {
+  createSession,
+  type ChatMessage,
+  type ChatSession,
+  type MessageRoute,
+} from "../domain/messages.ts";
 
 export class SessionNotFoundError extends Error {
   constructor(sessionId: string) {
@@ -13,7 +18,10 @@ export class SessionCorruptError extends Error {
   readonly filePath: string;
 
   constructor(filePath: string, cause?: unknown) {
-    super(`Session file is corrupt and was preserved: ${filePath}`, cause === undefined ? undefined : { cause });
+    super(
+      `Session file is corrupt and was preserved: ${filePath}`,
+      cause === undefined ? undefined : { cause },
+    );
     this.name = "SessionCorruptError";
     this.filePath = filePath;
   }
@@ -70,10 +78,14 @@ export class FileSessionStore {
     const persisted: ChatSession = {
       ...session,
       updatedAt: new Date().toISOString(),
-      messages: session.messages.map((message) => ({ ...message })),
+      messages: session.messages.map(cloneMessage),
     };
 
-    await writeFile(tempPath, `${JSON.stringify(persisted, null, 2)}\n`, "utf8");
+    await writeFile(
+      tempPath,
+      `${JSON.stringify(persisted, null, 2)}\n`,
+      "utf8",
+    );
     await rename(tempPath, filePath);
     session.updatedAt = persisted.updatedAt;
   }
@@ -90,13 +102,20 @@ function validateSessionId(sessionId: string): void {
   }
 }
 
-function assertSession(value: unknown, expectedId: string): asserts value is ChatSession {
+function assertSession(
+  value: unknown,
+  expectedId: string,
+): asserts value is ChatSession {
   if (!value || typeof value !== "object") {
     throw new Error("Session must be an object.");
   }
 
   const session = value as Partial<ChatSession>;
-  if (session.id !== expectedId || typeof session.createdAt !== "string" || typeof session.updatedAt !== "string") {
+  if (
+    session.id !== expectedId ||
+    typeof session.createdAt !== "string" ||
+    typeof session.updatedAt !== "string"
+  ) {
     throw new Error("Session metadata is invalid.");
   }
 
@@ -109,17 +128,60 @@ function assertSession(value: unknown, expectedId: string): asserts value is Cha
     if (!message || typeof message !== "object") {
       throw new Error("Session message is invalid.");
     }
+
     if (
       message.sessionId !== expectedId ||
       message.sequence !== expectedSequence ||
       (message.role !== "user" && message.role !== "assistant") ||
       typeof message.text !== "string" ||
-      !["pending", "complete", "interrupted", "failed"].includes(message.status)
+      !["pending", "complete", "interrupted", "failed"].includes(
+        message.status,
+      )
     ) {
       throw new Error("Session message contract is invalid.");
     }
+
+    if (message.route !== undefined) {
+      assertRoute(message.route);
+    }
+
+    if (
+      message.providerResponseId !== undefined &&
+      (message.role !== "assistant" ||
+        typeof message.providerResponseId !== "string" ||
+        message.providerResponseId.length === 0)
+    ) {
+      throw new Error("Session provider response attribution is invalid.");
+    }
+
     expectedSequence += 1;
   }
+}
+
+function assertRoute(value: unknown): asserts value is MessageRoute {
+  if (!value || typeof value !== "object") {
+    throw new Error("Session message route is invalid.");
+  }
+
+  const route = value as Partial<MessageRoute>;
+  for (const field of [
+    route.routeId,
+    route.requestId,
+    route.providerId,
+    route.model,
+    route.adapterRevision,
+  ]) {
+    if (typeof field !== "string" || field.length === 0) {
+      throw new Error("Session message route is invalid.");
+    }
+  }
+}
+
+function cloneMessage(message: ChatMessage): ChatMessage {
+  return {
+    ...message,
+    ...(message.route ? { route: { ...message.route } } : {}),
+  };
 }
 
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {

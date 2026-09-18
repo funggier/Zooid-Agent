@@ -7,6 +7,7 @@
 - [ZOOID-0002 OpenAI-compatible provider adapter](ZOOID-0002-openai-compatible-provider-report.md): HTTP protocol/transport fixtures and error/cancel/secret-handling evidence
 - [ZOOID-0003 blocked checkpoint](ZOOID-0003-live-provider-qualification-checkpoint.md): historical checkpoint before local execution access existed
 - [ZOOID-0003 final live qualification](ZOOID-0003-live-provider-qualification-report.md): real Windows/Ollama two-turn PASS and host capability evidence
+- [ZOOID-0004 Provider Routing Foundation](ZOOID-0004-provider-routing-report.md): registry/router/same-session switching evidence plus real routed CLI Ollama PASS
 
 Task IDs เป็น development-history sequence ไม่ใช่ release version.
 

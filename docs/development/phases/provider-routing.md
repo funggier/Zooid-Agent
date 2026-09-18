@@ -22,6 +22,72 @@ RouteRequest: session_id, selected_provider, model, required_capabilities
 RouteDecision: route_id, provider_id, model, adapter_revision, compatibility_result, reason  
 RouteSelection เป็น setting ของ next request ไม่เปลี่ยน provider attribution ของข้อความเก่า
 
+## Provider management model
+
+Provider management must preserve three separate identities:
+
+```text
+Adapter / protocol implementation
+        ↓
+Provider instance / endpoint or account
+        ↓
+Models exposed by that provider
+```
+
+Examples:
+
+- adding another Ollama/OpenAI-compatible endpoint uses the existing adapter and should be configuration-only;
+- adding or disabling a model under an existing provider should be configuration-only;
+- supporting a genuinely new wire protocol requires a new adapter implementation;
+- a provider ID must not be forced to equal the adapter name because many provider instances may share one adapter.
+
+### Configuration ownership
+
+Provider and model inventory must become durable Zooid configuration rather than source-code constants.
+
+Target management path:
+
+```text
+CLI / future UI / future API
+            ↓
+Provider Configuration Service
+            ↓
+Provider Registry
+            ↓
+Provider Router
+```
+
+The UI must not implement a second provider-management logic path; all interfaces use the same configuration service/contract.
+
+### Provider/model lifecycle semantics
+
+Prefer reversible state changes over destructive deletion:
+
+- `enabled`: configured and permitted for new Zooid routes;
+- `disabled`: intentionally retained but not permitted for new routes;
+- `unavailable`: configured/enabled policy exists but the provider currently does not report/reach the resource;
+- `removed`: absent from active configuration, while historical attribution remains valid.
+
+Removing or disabling a provider/model affects future routing only. It must never erase or rewrite old `providerId`, `model`, `routeId`, or `adapterRevision` attribution stored with completed work.
+
+### Discovery versus permission
+
+Provider-specific discovery may report resources that physically exist, but discovery does not grant Zooid permission to use them.
+
+```text
+Discovered/available models
+          ∩
+Zooid-enabled models
+          =
+Routable models
+```
+
+For Ollama, a future discovery implementation may inspect the local model inventory (for example through its native model-list endpoint). Newly discovered models must not be auto-enabled merely because another application installed them.
+
+### Credentials
+
+Credentials belong to a provider instance/account/endpoint, not to individual model definitions. Durable provider configuration should reference a credential identifier; secret material must remain outside ordinary persisted configuration and logs.
+
 ## Work packages
 
 ### Registry และ capability contract
@@ -61,5 +127,21 @@ RouteSelection เป็น setting ของ next request ไม่เปลี
 - reload settings ไม่ทำให้ credential ของ A ถูกส่งไป B
 
 **Exit gate:** adapter conformance tests ทั้งสองชุดและ switching scenarios ผ่าน สามารถใช้คนละ protocol fixture; live provider ที่สองให้บันทึกสถานะตามจริง ไม่อ้างว่ารองรับทุก provider
+
+### Provider configuration and discovery follow-on
+
+After route snapshot + same-session switching is integrated:
+
+- [ ] define durable provider-instance configuration independent from adapter implementation;
+- [ ] add/disable/remove provider instance without source-code changes when its adapter already exists;
+- [ ] add/disable/remove model without source-code changes;
+- [ ] expose enabled/disabled/unavailable state explicitly;
+- [ ] preserve historical attribution after provider/model removal;
+- [ ] keep credentials provider-scoped and secret values outside ordinary config;
+- [ ] provider-specific discovery is read-only by default;
+- [ ] discovered models are not automatically enabled;
+- [ ] compute routable models from availability + explicit Zooid enablement;
+- [ ] CLI management commands use the same configuration service intended for later UI/API use;
+- [ ] tests prove config reload cannot silently change an already snapshotted in-flight route.
 
 **Deferred:** cost/latency-based auto routing, silent fallback, load balancing; จะเพิ่มหลัง ticket/attempt ทำให้บันทึก retry และค่าใช้จ่ายได้ถูกต้อง

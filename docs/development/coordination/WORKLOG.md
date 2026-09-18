@@ -1,42 +1,139 @@
 # Worklog
 
-## 2026-09-18 — ZOOID-0003 external live gate PASS
+## 2026-09-19 — ZOOID-0004 real routed CLI PASS and closure
 
-Remote Desktop Commander became available and connected to device `CDQ-P`, allowing the previously blocked live gate to execute on the real Windows host.
+A clean clone of `agent/zooid-0004-provider-routing` at head `8aab78abaf070e3a605a7304aad63033ff8e975e` was executed on authorized Windows host `CDQ-P`.
 
-Host baseline:
-- Windows 10 Pro build 19045
-- Intel Core Ultra 5 245K, 14C/14T
-- 31.46 GB RAM
-- Intel Graphics
-- Node.js 24.18.0
-- Ollama 0.32.15
+Production path:
+`CLI → ProviderRegistry → ProviderRouter → routed ChatService → OpenAI-compatible adapter → local Ollama`.
 
-A clean clone at `T:\Zooid-Agent-livecheck` checked out head `2b9ec0c415aa63dbbd15147289b79dfdefc6260e` and passed all 24 local tests.
+Model: `qwen3:1.7b`.
 
-First live attempt with existing `qwen3.8:27b` correctly timed out after 180 seconds. A direct 8-token request also timed out after ~30 seconds. Ollama reported the model running 100% CPU, so this was recorded as a host/model performance limitation.
+Observed PASS:
+- `/route` reported `openai-compatible/qwen3:1.7b`;
+- real response included exact token `ROUTED_OK`;
+- exit code 0;
+- two complete persisted messages;
+- identical route ID on user/assistant pair;
+- provider response ID persisted.
 
-A smaller `qwen3:1.7b` model was then pulled specifically to isolate functional correctness from large-model latency.
+Evidence root: `T:\\Zooid-Agent-routing-evidence\\20260919T003339`.
 
-The exact same Zooid live qualification passed in ~16.08 seconds:
-- outcome PASS
-- messageCount 4
-- orderedCompleteTranscript true
-- markerRecovered true
+Host remained under high Windows commit pressure (~50.79/51.46 GB, fixed pagefile effectively full). Both 1.7B and 27B models were already resident; no unrelated model/process was stopped or modified.
 
-Basic Provider Chat is now COMPLETE and the Provider Router gate is released after merge.
+The dedicated `qwen3.8:27b` extended-wait acceptance remains required later. ZOOID-0004 does not treat the older 180-second timeout as unsupported-model evidence.
 
-Detailed evidence: [ZOOID-0003 final report](../reports/ZOOID-0003-live-provider-qualification-report.md).
+Draft PR #4 opened. Provider Configuration/Discovery moves to ZOOID-0005 after merge.
 
 ---
 
-## 2026-09-18 — ZOOID-0003 harness verified; external execution initially blocked
 
-Implemented the two-turn live-provider qualification harness at `7b79e0d427c59d7706213c48fceb8cf65c59d5ef`.
+## 2026-09-18 — ZOOID-0004 same-session routing and CLI GREEN
 
-Workflow `35360017018` completed SUCCESS on Ubuntu and Windows with 24/24 tests.
+Work Package C1 RED → GREEN:
+- RED `aff7f8bca16f64fa292aa64e94dbb6bffb3f15b5`, workflow `35374402511`
+- GREEN `42c362929fd9c0b842d250502bb004aa5728ba5e`, workflow `35374568973`
+- SUCCESS Ubuntu + Windows, 38/38 tests
 
-At that time no local execution connector was available, so the task correctly recorded `BLOCKED_EXTERNAL_EXECUTION`. That checkpoint is preserved historically and later superseded by the real host PASS above.
+Verified route snapshot persistence before dispatch, A → B → A one-session switching, neutral history transfer, in-flight attribution stability, no silent fallback and pre-dispatch incompatibility rejection.
+
+Work Package C2 RED → GREEN:
+- RED `dbbb126a775da74f265037714af6e161a74bf548`, workflow `35374705926`
+- GREEN `8b3926b2406695ad1475ffc1f80a3c0b04d23bd1`, workflow `35374806274`
+- SUCCESS Ubuntu + Windows, 40/40 tests
+
+CLI now runs through Registry → Router → ChatService and supports explicit `/route` inspection/selection.
+
+Next acceptance: real local Ollama through the routed CLI path using the small model for fast feedback.
+
+---
+
+
+## 2026-09-18 — Provider catalog/configuration design recorded
+
+User approved the provider/model lifecycle design and requested it be added to the plan.
+
+Permanent direction:
+- separate Adapter → Provider Instance → Model;
+- provider/model changes on an existing protocol are configuration operations;
+- a new protocol adds an adapter rather than Router special cases;
+- discovered models are not auto-enabled;
+- routable set = available/discovered ∩ explicitly enabled;
+- prefer disable for reversible changes;
+- unavailable and disabled are distinct states;
+- removal does not erase historical provider/model/route attribution;
+- credentials are provider-scoped;
+- future CLI/UI/API must share one Provider Configuration Service.
+
+Implementation remains ordered: finish route snapshot/same-session switching first, then build provider configuration/discovery against that stable boundary.
+
+---
+
+
+## 2026-09-18 — ZOOID-0004 Registry and Router foundation GREEN
+
+Work Package A:
+- SHA `0c49d9d58b8c386209b461de6a64dbc7ac408e54`
+- workflow `35365344223`
+- SUCCESS Ubuntu + Windows
+- 29/29 tests
+
+Work Package B used an explicit GitHub-runner RED → GREEN cycle:
+- RED SHA `dd61bec6b8f5efbf181763fac81a687ccee2cbdb`
+- workflow `35365567556`
+- expected failure because `src/providers/router.ts` did not yet exist
+- 29 existing tests passed, 1 new router test file failed
+- minimal implementation SHA `823d3ff9b5670729f5391a4d4c2f1774036847c3`
+- workflow `35365663955`
+- SUCCESS Ubuntu + Windows
+- 33/33 tests
+
+Router now produces deterministic explicit route snapshots, performs capability rejection before dispatch, and never silently falls back to another registered provider.
+
+Local host note: Windows commit charge was observed at ~51.33/51.46 GB with a fixed 20 GB pagefile effectively full. Local Node test workers could fail to allocate threads/heap under this pressure. No pagefile or unrelated process/model settings were changed; clean CI remains the verification authority for this milestone.
+
+Next: same-session route switching and provider/model attribution.
+
+---
+
+
+## 2026-09-18 — Single slow-model baseline clarified
+
+The user explicitly required Zooid to remain usable with `qwen3.8:27b` as the only model even when inference is very slow.
+
+This changes the interpretation of the ZOOID-0003 27B timeout: the 180-second result is a performance observation under that qualification window, not a reason to require a smaller helper model.
+
+Architecture constraints carried forward into ZOOID-0004:
+- single-model serial operation is mandatory;
+- `qwen3.8:27b`-only mode is supported by design;
+- helper/small models are optional optimizations;
+- no router/controller dependency on parallel inference;
+- provider timeout must be configurable;
+- slow inference alone is not failure;
+- control-plane logic should stay deterministic and avoid unnecessary LLM calls.
+
+---
+
+
+## 2026-09-18 — ZOOID-0004 Provider Routing opened
+
+ZOOID-0003 merged through PR #3 to main commit `f129f99fe6b3f25b3e9a22f26715b0d9a0051ffd`.
+
+Post-merge workflow `35362601729` completed SUCCESS on Ubuntu and Windows.
+
+Opened branch `agent/zooid-0004-provider-routing`.
+
+Read the existing Provider Routing phase plan, system overview, requirements, design decisions and quality gates before setting scope.
+
+The first slice is deterministic provider capability + registry validation. Manual switching remains the baseline; automatic fallback/load balancing/cost routing are deferred.
+
+Real host evidence from ZOOID-0003 is carried forward as a constraint: `qwen3:1.7b` passed the live gate while `qwen3.8:27b` was not responsive enough under observed CPU-only execution. Router correctness must therefore remain cheap, serial and independent of parallel real-model inference.
+
+---
+
+## 2026-09-18 — ZOOID-0003 external live gate PASS
+
+Remote Desktop Commander enabled execution on device `CDQ-P`. The real OpenAI-compatible Ollama path passed with `qwen3:1.7b`; detailed evidence remains in the ZOOID-0003 final report.
 
 ---
 
