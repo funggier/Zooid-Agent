@@ -1,5 +1,26 @@
 # Worklog
 
+## 2026-09-18 — Provider catalog/configuration design recorded
+
+User approved the provider/model lifecycle design and requested it be added to the plan.
+
+Permanent direction:
+- separate Adapter → Provider Instance → Model;
+- provider/model changes on an existing protocol are configuration operations;
+- a new protocol adds an adapter rather than Router special cases;
+- discovered models are not auto-enabled;
+- routable set = available/discovered ∩ explicitly enabled;
+- prefer disable for reversible changes;
+- unavailable and disabled are distinct states;
+- removal does not erase historical provider/model/route attribution;
+- credentials are provider-scoped;
+- future CLI/UI/API must share one Provider Configuration Service.
+
+Implementation remains ordered: finish route snapshot/same-session switching first, then build provider configuration/discovery against that stable boundary.
+
+---
+
+
 ## 2026-09-18 — ZOOID-0004 Registry and Router foundation GREEN
 
 Work Package A:

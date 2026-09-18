@@ -120,6 +120,24 @@ Acceptance:
 - [ ] provider failure does not silently change route.
 - [ ] smaller context/capability target produces explicit pre-dispatch rejection when applicable.
 
+### D — Provider configuration and discovery follow-on
+
+This is now an explicit Provider Routing design requirement, but implementation follows the C integration boundary so configuration reload semantics can be tested against real route snapshots.
+
+Acceptance direction:
+
+- [ ] Adapter, Provider Instance and Model are separate identities.
+- [ ] provider endpoint/account using an existing adapter can be added/disabled/removed through configuration without production source edits.
+- [ ] model can be added/disabled/removed through configuration without production source edits.
+- [ ] a genuinely new provider protocol requires a new adapter, not Router special cases.
+- [ ] prefer `disabled` over destructive removal for reversible operation.
+- [ ] `unavailable` is distinct from `disabled`.
+- [ ] discovery is read-only by default and never auto-enables a discovered model.
+- [ ] routable model set is derived from provider availability plus explicit Zooid enablement.
+- [ ] provider/model removal does not erase historical provider/model/route attribution.
+- [ ] credentials remain provider-scoped; ordinary config/logs contain references rather than secret material.
+- [ ] future CLI/UI/API share one Provider Configuration Service rather than duplicating management logic.
+
 ## Host-derived constraints
 
 Observed on authorized device `CDQ-P` during ZOOID-0003:
@@ -216,6 +234,22 @@ During local verification, Windows reported approximately 51.33 GB committed out
 
 This is recorded as host environment pressure, not a Zooid regression. No pagefile setting and no unrelated running model/process was changed automatically.
 
+### 2026-09-18 — Provider/model configuration semantics added
+
+User approved the Provider management direction and requested it be retained in the development plan.
+
+Recorded rules:
+- Adapter ≠ Provider Instance ≠ Model.
+- adding/removing a model under an existing provider should be configuration-only;
+- adding another endpoint/account using an existing protocol should be configuration-only;
+- a genuinely new protocol requires a new adapter;
+- discovered/installed does not imply enabled/routable;
+- `routable = available ∩ enabled`;
+- prefer reversible disable state before destructive removal;
+- removal/disable affects new routing only and must not rewrite historical provenance;
+- credentials belong to provider instances rather than individual models;
+- CLI and later UI/API must share one management service.
+
 ## Next action
 
-Implement Work Package C: bind an accepted route snapshot to ChatService dispatch and message attribution, then add CLI manual route selection and deterministic A → B → A same-session tests.
+Implement Work Package C first: bind an accepted route snapshot to ChatService dispatch and message attribution, then add CLI manual route selection and deterministic A → B → A same-session tests. Provider Configuration/Discovery follows on top of that snapshot boundary.

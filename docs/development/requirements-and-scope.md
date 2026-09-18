@@ -15,6 +15,7 @@
 | --- | --- | --- | --- |
 | R-CHAT | เริ่มจาก provider และแชตพื้นฐาน | [Basic chat](phases/basic-provider-chat.md) | 1 |
 | R-ROUTE | เปลี่ยน provider ใน session เดิม | [Routing](phases/provider-routing.md) | 2 |
+| R-PROVIDER-CONFIG | เพิ่ม/ปิด/ลบ provider instance หรือ model ที่ใช้ adapter เดิมได้จาก configuration โดยไม่แก้ source; protocol ใหม่จึงค่อยเพิ่ม adapter; discovery ไม่ auto-enable และการลบห้ามทำลาย historical attribution | [Routing](phases/provider-routing.md) | 2 |
 | R-TICKET | มี ticket ก่อน recovery | [Tickets](phases/durable-tickets.md) | 3 |
 | R-RECOVER | ฟื้นงานโดยไม่หลงสถานะ/ทำซ้ำไม่รู้ตัว | [Recovery](phases/recovery.md) | 4 |
 | R-CONTEXT | งานยาวใช้ context ที่มีขอบเขต | [Bounded context](phases/context/bounded-context.md) | 5 |
@@ -40,6 +41,8 @@
 
 - Local-first, ผู้ใช้เดียว, เครื่องเดียว; CLI เป็น interface แรกที่เสนอ
 - Text chat, manual provider switching, persistence ของงานในเครื่อง
+- Provider inventory/configuration ต้องแยก Adapter → Provider Instance → Model; provider/model ที่ใช้ protocol เดิมต้องเพิ่ม/ปิด/ลบได้โดยไม่แก้ source code
+- Model/provider ที่ discover ได้ยังไม่ routable จนกว่าจะ enabled โดย Zooid อย่างชัดเจน; disable/remove ต้องไม่ลบ provenance ของประวัติงานเดิม
 - Single-model operation เป็น baseline; โมเดลเล็ก/หลายโมเดลเป็น optional optimization ไม่ใช่ dependency
 - ต้องรองรับ slow-model mode ที่ timeout ปรับได้และไม่ถือว่าความช้าเพียงอย่างเดียวคือ failure
 - ไม่ตั้ง daemon หรือ scheduled task ในขั้น 1

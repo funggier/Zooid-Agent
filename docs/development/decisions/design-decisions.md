@@ -20,6 +20,7 @@
 | D-RETRIEVAL | DESIGN_PROPOSAL | metadata/lexical ก่อน vector | เพิ่ม vector เมื่อ benchmark ชี้ประโยชน์ที่วัดได้ |
 | D-REVIEW | DESIGN_PROPOSAL | rubric + deterministic evidence gate | fresh reviewer ไม่รับประกันความจริง |
 | D-UPDATES | USER_DIRECTION | Zooid มี release/update ของตัวเอง | ไม่ auto-sync upstream; imports review รายส่วน |
+| D-PROVIDER-CATALOG | USER_DIRECTION | แยก Adapter, Provider Instance และ Model; provider/model บน protocol เดิมจัดการด้วย config, protocol ใหม่จึงเพิ่ม adapter; discovery ไม่เท่ากับ permission | ใช้ reversible disable ก่อน destructive removal; routable = available ∩ enabled; removal ห้ามแก้ historical attribution; credentials อยู่ขอบเขต provider |
 | D-MONETIZE | DEFERRED_BY_USER | พักเรื่องรายได้ | ไม่เพิ่ม billing ใน roadmap ปัจจุบัน |
 
 ## D-STACK evidence
