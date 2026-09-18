@@ -13,11 +13,16 @@ interface CompatibleResponse {
 
 export class OpenAICompatibleProvider implements ChatProvider {
   readonly name = "openai-compatible";
+  private readonly settings: OpenAICompatibleProviderSettings;
+  private readonly fetchImpl: FetchLike;
 
   constructor(
-    private readonly settings: OpenAICompatibleProviderSettings,
-    private readonly fetchImpl: FetchLike = fetch,
-  ) {}
+    settings: OpenAICompatibleProviderSettings,
+    fetchImpl: FetchLike = fetch,
+  ) {
+    this.settings = settings;
+    this.fetchImpl = fetchImpl;
+  }
 
   async send(request: ChatRequest): Promise<ChatResult> {
     const messages = selectRequestMessages(request.messages);
