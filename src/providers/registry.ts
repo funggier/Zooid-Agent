@@ -38,9 +38,7 @@ export class ProviderRegistry {
   private readonly registrations = new Map<string, ProviderRegistration>();
 
   constructor(registrations: readonly ProviderRegistration[] = []) {
-    for (const registration of registrations) {
-      this.register(registration);
-    }
+    this.replaceAll(registrations);
   }
 
   register(registration: ProviderRegistration): void {
@@ -56,6 +54,34 @@ export class ProviderRegistry {
     }
 
     this.registrations.set(providerId, registration);
+  }
+
+  replaceAll(registrations: readonly ProviderRegistration[]): void {
+    const next = new Map<string, ProviderRegistration>();
+
+    for (const registration of registrations) {
+      validateDescriptor(registration.descriptor);
+      const providerId = registration.descriptor.providerId;
+
+      if (next.has(providerId)) {
+        throw new ProviderRegistryError(
+          "duplicate_provider",
+          `Provider "${providerId}" is already registered.`,
+          { providerId },
+        );
+      }
+
+      next.set(providerId, registration);
+    }
+
+    this.registrations.clear();
+    for (const [providerId, registration] of next) {
+      this.registrations.set(providerId, registration);
+    }
+  }
+
+  list(): ProviderRegistration[] {
+    return [...this.registrations.values()];
   }
 
   get(providerId: string): ProviderRegistration {
@@ -131,31 +157,47 @@ function validateDescriptor(descriptor: ProviderDescriptor): void {
   assertCanonicalNonEmpty(descriptor.adapterRevision, "adapterRevision");
 
   if (descriptor.models.length === 0) {
-    invalidDescriptor(descriptor.providerId, "models must contain at least one model");
+    invalidDescriptor(
+      descriptor.providerId,
+      "models must contain at least one model",
+    );
   }
 
   const modelSet = new Set<string>();
   for (const model of descriptor.models) {
     assertCanonicalNonEmpty(model, "model", descriptor.providerId);
     if (modelSet.has(model)) {
-      invalidDescriptor(descriptor.providerId, `duplicate model "${model}"`);
+      invalidDescriptor(
+        descriptor.providerId,
+        `duplicate model "${model}"`,
+      );
     }
     modelSet.add(model);
   }
 
   if (descriptor.supportedRoles.length === 0) {
-    invalidDescriptor(descriptor.providerId, "supportedRoles must not be empty");
+    invalidDescriptor(
+      descriptor.providerId,
+      "supportedRoles must not be empty",
+    );
   }
 
   if (descriptor.contentTypes.length === 0) {
-    invalidDescriptor(descriptor.providerId, "contentTypes must not be empty");
+    invalidDescriptor(
+      descriptor.providerId,
+      "contentTypes must not be empty",
+    );
   }
 
   if (
     descriptor.contextLimit !== undefined &&
-    (!Number.isSafeInteger(descriptor.contextLimit) || descriptor.contextLimit <= 0)
+    (!Number.isSafeInteger(descriptor.contextLimit) ||
+      descriptor.contextLimit <= 0)
   ) {
-    invalidDescriptor(descriptor.providerId, "contextLimit must be a positive safe integer");
+    invalidDescriptor(
+      descriptor.providerId,
+      "contextLimit must be a positive safe integer",
+    );
   }
 }
 
@@ -165,7 +207,10 @@ function assertCanonicalNonEmpty(
   providerId?: string,
 ): void {
   if (value.length === 0 || value !== value.trim()) {
-    invalidDescriptor(providerId ?? value, `${field} must be non-empty and already trimmed`);
+    invalidDescriptor(
+      providerId ?? value,
+      `${field} must be non-empty and already trimmed`,
+    );
   }
 }
 
