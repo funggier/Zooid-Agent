@@ -1,6 +1,14 @@
-import { stdin as input, stdout as output, stderr as errorOutput } from "node:process";
+import {
+  stdin as input,
+  stdout as output,
+  stderr as errorOutput,
+} from "node:process";
 import { createInterface } from "node:readline";
-import { ChatService, isAbortError } from "../chat/chat-service.ts";
+import {
+  ChatService,
+  isAbortError,
+  RouteRejectedError,
+} from "../chat/chat-service.ts";
 import {
   describeProvider,
   loadProviderSettings,
@@ -8,6 +16,11 @@ import {
 } from "../config/provider-settings.ts";
 import { ProviderError } from "../providers/contracts.ts";
 import { createProviderRuntime } from "../providers/provider-runtime.ts";
+import {
+  ProviderRegistry,
+  ProviderRegistryError,
+} from "../providers/registry.ts";
+import { ProviderRouter } from "../providers/router.ts";
 import { FileSessionStore } from "../storage/file-session-store.ts";
 
 try {
@@ -28,11 +41,21 @@ try {
 async function run(): Promise<void> {
   const settings = loadProviderSettings();
   const runtime = createProviderRuntime(settings);
+  const registry = new ProviderRegistry([
+    {
+      descriptor: runtime.descriptor,
+      provider: runtime.provider,
+    },
+  ]);
+  const router = new ProviderRouter(registry);
   const store = new FileSessionStore();
   const chat = new ChatService({
-    provider: runtime.provider,
+    router,
     store,
-    model: runtime.model,
+    route: {
+      providerId: runtime.providerId,
+      model: runtime.model,
+    },
   });
 
   let session = await chat.createSession();
@@ -41,7 +64,9 @@ async function run(): Promise<void> {
   output.write("Zooid — Powered by CogentNexus\n");
   output.write(`Provider: ${describeProvider(settings)}\n`);
   output.write(`Session: ${session.id}\n`);
-  output.write("Commands: /new, /open <session-id>, /exit\n\n");
+  output.write(
+    "Commands: /new, /open <session-id>, /exit, /route, /route <provider-id> <model>\n\n",
+  );
 
   const readline = createInterface({
     input,
@@ -97,6 +122,53 @@ async function run(): Promise<void> {
         continue;
       }
 
+      if (trimmed === "/route") {
+        writeCurrentRoute(chat);
+        promptIfInteractive(readline);
+        continue;
+      }
+
+      if (trimmed.startsWith("/route ")) {
+        const routeText = trimmed.slice("/route ".length).trim();
+        const separator = routeText.search(/\s/);
+
+        if (separator <= 0) {
+          output.write(
+            "zooid> route error: usage /route <provider-id> <model>\n",
+          );
+          promptIfInteractive(readline);
+          continue;
+        }
+
+        const providerId = routeText.slice(0, separator).trim();
+        const model = routeText.slice(separator).trim();
+
+        if (!providerId || !model) {
+          output.write(
+            "zooid> route error: usage /route <provider-id> <model>\n",
+          );
+          promptIfInteractive(readline);
+          continue;
+        }
+
+        try {
+          registry.resolve(providerId, model);
+          chat.selectRoute({ providerId, model });
+          output.write(
+            `Selected route for next request: ${providerId}/${model}\n`,
+          );
+        } catch (error) {
+          if (error instanceof ProviderRegistryError) {
+            output.write(`zooid> route error: ${error.message}\n`);
+          } else {
+            throw error;
+          }
+        }
+
+        promptIfInteractive(readline);
+        continue;
+      }
+
       if (trimmed.length === 0) {
         promptIfInteractive(readline);
         continue;
@@ -114,6 +186,10 @@ async function run(): Promise<void> {
       } catch (error) {
         if (isAbortError(error)) {
           output.write("zooid> request cancelled\n");
+        } else if (error instanceof RouteRejectedError) {
+          output.write(
+            `zooid> route rejected: ${error.decision.reason}\n`,
+          );
         } else if (error instanceof ProviderError) {
           output.write(
             `zooid> provider error (${error.kind}): ${error.safeMessage}\n`,
@@ -140,4 +216,14 @@ async function run(): Promise<void> {
       interfaceHandle.prompt();
     }
   }
+}
+
+function writeCurrentRoute(chat: ChatService): void {
+  const route = chat.getSelectedRoute();
+  if (!route) {
+    output.write("Current route: none\n");
+    return;
+  }
+
+  output.write(`Current route: ${route.providerId}/${route.model}\n`);
 }
