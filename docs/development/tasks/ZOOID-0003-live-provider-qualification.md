@@ -12,7 +12,7 @@
 - Last verified harness SHA: `7b79e0d427c59d7706213c48fceb8cf65c59d5ef`
 - Harness workflow: `35360017018` — SUCCESS, Ubuntu + Windows, 24/24 tests
 - Previous task: [ZOOID-0002](ZOOID-0002-openai-compatible-provider.md)
-- Checkpoint report: [ZOOID-0003 live qualification checkpoint](../reports/ZOOID-0003-live-provider-qualification-checkpoint.md)
+- Pull request: #3 (DRAFT; do not merge before live PASS)\n- Checkpoint report: [ZOOID-0003 live qualification checkpoint](../reports/ZOOID-0003-live-provider-qualification-checkpoint.md)
 - Phase: Basic Provider Chat
 
 ## Why this task exists
