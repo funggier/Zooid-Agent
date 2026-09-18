@@ -3,137 +3,137 @@
 ## Metadata
 
 - ID: ZOOID-0001
-- Status: IN_PROGRESS
+- Status: COMPLETE
 - Started: 2026-09-18
+- Completed: 2026-09-18
 - Repository: `funggier/Zooid-Agent`
 - Branch: `agent/zooid-0001-basic-chat-foundation`
 - Base SHA: `ecf1d582d09d9bc1798ad25c643e40f067c6bb23`
+- Verified implementation SHA: `0da31b465846823cb09b8b64bfa48ca5879e0c58`
 - Phase: Basic Provider Chat
-- Previous planning input: `prepare-basic-chat.md`
+- Report: [basic chat foundation report](../reports/ZOOID-0001-basic-chat-foundation-report.md)
+- Previous planning input: [prepare-basic-chat](prepare-basic-chat.md)
 
-## Why this task exists
+## Why this task existed
 
-Zooid มีแผนสถาปัตยกรรมและ roadmap แล้ว แต่ยังไม่มี application code ที่รันได้จริง งานแรกจึงต้องเปลี่ยน repository จาก planning-only state ให้เป็น executable software โดยเริ่มจากเส้นทางที่เล็กที่สุด:
+Zooid มี architecture/roadmap แล้วแต่ยังไม่มี application code งานนี้เปลี่ยน repository จาก planning-only state ให้มี executable path ที่เล็กและตรวจสอบได้:
 
 `user input -> chat service -> provider contract -> response -> persisted session`
 
-การเริ่มจาก basic chat ช่วยแยกปัญหา runtime/provider/session persistence ออกจากความซับซ้อนของ Router, Ticket, Recovery, Project และ Group
+การเริ่มจากเส้นทางนี้แยกปัญหา runtime, session persistence, cancellation และ provider boundary ออกจาก Router, Ticket, Recovery, Project และ Group
 
-งานนี้ยังเป็นจุดเริ่มต้นของ durable GitHub development tracking ตามคำสั่งผู้ใช้ เพื่อให้ session ใหม่รับงานต่อจาก repository ได้โดยตรง
+งานนี้ยังสร้าง durable GitHub task history ตามคำสั่งผู้ใช้ เพื่อให้ session ใหม่รับช่วงงานจาก repository โดยไม่ต้องพึ่งประวัติแชต
 
-## Goal
+## Goal result
 
-สร้าง foundation ที่:
+ทำสำเร็จสำหรับ foundation:
 
-1. รันจาก checkout ได้ด้วยคำสั่งที่ชัดเจน
+1. รันจาก checkout ด้วย Node.js 24+ โดยไม่มี runtime dependency ภายนอก
 2. มี CLI chat ขั้นพื้นฐาน
-3. มี provider interface ที่ทดสอบด้วย fake provider ได้
-4. เก็บ session/message อย่างมีลำดับและเปิดกลับได้
-5. รองรับ cancellation/error contract ขั้นพื้นฐาน
-6. มี automated tests บน GitHub Actions
-7. อัปเดต durable coordination state ทุก checkpoint สำคัญ
+3. มี provider interface และ deterministic fake provider
+4. เก็บ ordered session/message และ reopen ได้
+5. มี cancel/error provenance และป้องกัน late assistant response
+6. มี automated tests + CLI smoke test
+7. CI ผ่านทั้ง Ubuntu และ Windows
+8. มี task/report/coordination history สำหรับ handoff
 
-## Scope
+## Implemented scope
 
-อยู่ใน scope:
+- [x] `package.json`, TypeScript config และ source/test layout
+- [x] Node 24 native TypeScript execution; no runtime package install required
+- [x] message/session contracts และ stable UUIDs
+- [x] ordered transcript model
+- [x] atomic file-backed session persistence
+- [x] corrupt-session preservation/error path
+- [x] provider request/result/error contracts
+- [x] deterministic fake provider
+- [x] cancellation behavior และ late-response guard
+- [x] CLI: new/open session, send text, exit, normalized error display
+- [x] interactive Ctrl+C request cancellation path
+- [x] Thai/multiline coverage
+- [x] persistence reopen coverage
+- [x] CLI end-to-end smoke path
+- [x] GitHub Actions matrix on Ubuntu + Windows
+- [x] README setup/test/run instructions
+- [x] durable task/report/checkpoint
 
-- เลือกและล็อก runtime/toolchain สำหรับ foundation
-- project manifest / TypeScript configuration
-- core chat message/session contracts
-- file-backed session persistence สำหรับระยะแรก
-- provider contract + fake provider
-- CLI minimal interaction
-- unit/integration tests
-- CI workflow
-- README setup/test/run instructions
-- development task/report/checkpoint
+## Explicitly not included
 
-ไม่อยู่ใน scope:
-
-- provider router หลายตัว
+- live provider credentials or live provider qualification
+- multi-provider routing
 - durable Ticket engine
 - recovery orchestration
 - Project/Group runtime
 - background autonomous loop
 - tool/skill ecosystem
-- installer/updater เต็มรูปแบบ
-- live provider credentials ใน repository
+- installer/updater
+- SQLite migration
 
-## Working decision
+A raw malformed HTTP/provider payload fixture is deferred to the first real transport adapter. The fake provider is an in-process typed boundary, so fabricating wire corruption inside it would not test the behavior that matters. Error/cancel behavior at the current boundary is covered.
 
-เริ่มด้วย TypeScript + Node.js ตาม candidate เดิม เพราะ repository ตั้งเป้า local modular monolith และ interface contracts ชัดเจน ตัวเลือกนี้ยังถือเป็น working decision จนกว่าจะผ่าน runnable/testable foundation; หากพบข้อจำกัดที่มีหลักฐานจึงเปิด decision task ใหม่แทนการเปลี่ยน stack เงียบ ๆ
+## Verified technical decision
 
-## Planned implementation slices
+TypeScript + Node.js 24 is accepted for the foundation because the same source and tests execute on GitHub Ubuntu and Windows runners with no runtime dependencies. This is not yet a claim that packaging, native integrations, or the user's live Windows machine are qualified.
 
-### Slice A — Execution scaffold
-- [ ] package manifest
-- [ ] TypeScript config
-- [ ] source/test layout
-- [ ] test runner
-- [ ] CI workflow
+## Implementation chronology
 
-### Slice B — Chat domain
-- [ ] message/session types
-- [ ] stable ID generation
-- [ ] ordered transcript model
-- [ ] persistence contract
-- [ ] file session store
+### Task opened
 
-### Slice C — Provider boundary
-- [ ] provider request/result/error contracts
-- [ ] fake provider
-- [ ] cancellation behavior
-- [ ] malformed/error fixtures
+- Created branch `agent/zooid-0001-basic-chat-foundation`
+- Established numbered task ledger
+- Updated coordination state from planning-only to implementation
 
-### Slice D — CLI
-- [ ] create/open session
-- [ ] send text
-- [ ] exit
-- [ ] display normalized error
-- [ ] no secret logging
+### Runnable foundation
 
-### Slice E — Verification
-- [ ] unit tests
-- [ ] persistence reopen test
-- [ ] Thai/multiline input test
-- [ ] cancellation/late-response test
-- [ ] GitHub Actions green
-- [ ] checkpoint report
+Commit `5a1d07edc225ed6a8a2e96122c416b8bf670bbca` added domain, storage, provider boundary, fake provider, chat service, CLI, tests and CI.
 
-## Acceptance criteria
+Workflow run `35357207396` passed Ubuntu and Windows with 7/7 tests.
 
-Task จะ COMPLETE เมื่อ:
+### CLI smoke gate exposed an input lifecycle bug
 
-- clean checkout สามารถ install/build/test ได้ตาม README
-- tests ยืนยัน ordered history และ reopen session
-- fake provider success/error/cancel paths ผ่าน
-- CLI สามารถคุยกับ fake provider ได้โดยไม่ต้องมี credential
-- CI บน branch ผ่าน
-- ACTIVE/STATUS/WORKLOG และ task นี้มี exact head/evidence/next state
-- งานถัดไปถูกแยกเป็น numbered task ไม่แอบขยาย scope
+Commit `670dc41c18c589f21c14e223fecf49dc8f7b1ea2` added an end-to-end CLI smoke test.
 
-## Progress log
+Workflow run `35357355471` failed on both OSes with `ERR_USE_AFTER_CLOSE` because `readline.question()` did not safely handle piped EOF.
 
-### 2026-09-18 — Task opened
+Commit `cc8226177abea63be0428574c91ad9bce2116ebd` moved the CLI to async line iteration.
 
-- ผู้ใช้อนุญาตให้เริ่มพัฒนา Zooid บน GitHub
-- ผู้ใช้กำหนดให้มี task history ใน repository เพื่อรองรับ session handoff
-- ตรวจ repository พบว่า implementation ยัง NOT_STARTED
-- สร้าง branch `agent/zooid-0001-basic-chat-foundation`
-- เริ่ม durable task sequence ด้วย ZOOID-0001
+Workflow run `35357456649` still failed with exit code 13 / unsettled top-level await. The test sent multiple commands and EOF while a provider request was still being processed.
 
-## Evidence
+Commit `5674eb975b712b6e2dd890966143ba1059639b54` staged smoke input around the provider response. Workflow run `35357580182` then timed out, revealing the deeper race: readline was created before asynchronous session initialization, so early piped input could be consumed before the async iterator attached.
 
-- Base commit: `ecf1d582d09d9bc1798ad25c643e40f067c6bb23`
-- Planning spec: `docs/development/phases/basic-provider-chat.md`
-- Development handoff: `docs/development/guides/development-handoff.md`
+### Root-cause repair
 
-## Risks / open items
+Commit `0da31b465846823cb09b8b64bfa48ca5879e0c58` creates readline only after session initialization and makes the smoke test wait for the CLI readiness banner before sending input.
 
-- live provider ยังไม่อยู่ใน scope ของ checkpoint แรก; fake provider ต้องทำให้ full local path ทดสอบได้ก่อน
-- Windows qualification ต้องมีหลักฐานจาก runner/environment ที่เหมาะสม ไม่อ้างผ่านจาก CI Linux อย่างเดียว
-- persistence แบบ file-backed เป็น foundation เท่านั้น; SQLite จะตัดสินใน phase ที่ต้องการ durability สูงขึ้น
+Workflow run `35357816628` completed SUCCESS on Ubuntu and Windows.
+
+## Acceptance evidence
+
+| Gate | Result |
+| --- | --- |
+| clean runtime dependency surface | PASS — Node 24+, zero runtime dependencies |
+| ordered history/reopen | PASS |
+| Thai/multiline message | PASS |
+| fake provider success | PASS |
+| provider error provenance | PASS |
+| cancellation | PASS |
+| no late assistant response | PASS |
+| corrupt session preservation | PASS |
+| CLI input → provider → output | PASS |
+| Ubuntu CI | PASS |
+| Windows CI | PASS |
+| final verified workflow | `35357816628` SUCCESS |
+
+The final verified source SHA is `0da31b465846823cb09b8b64bfa48ca5879e0c58`. Documentation closure commits occur after that source verification; a handoff session must read the live Git branch/ref rather than expecting a document to contain its own commit SHA.
+
+## Remaining limitations
+
+- Current CLI uses the fake provider only.
+- No live provider protocol or credential has been selected/qualified.
+- GitHub Windows runner is evidence for Windows CI portability, not qualification of the user's physical machine.
+- File persistence is a foundation mechanism, not the final durable Ticket/Project datastore.
+- GitHub Actions emits an upstream warning that checkout/setup-node v4 target an older action runtime internally; this did not fail Zooid tests.
 
 ## Next action
 
-สร้าง execution scaffold + tests บน branch นี้ แล้วรัน GitHub Actions ให้ได้หลักฐาน GREEN ก่อนเริ่ม provider/live integration
+Open the next sequential task for first real provider configuration/adapter qualification. Keep it inside Basic Provider Chat; do not begin Router until one-provider chat is proven end-to-end.
