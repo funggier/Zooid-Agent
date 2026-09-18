@@ -8,16 +8,17 @@ Zooid เป็นโครงการสร้างโปรแกรมเ�
 
 ## สถานะ
 
-Zooid มี Basic Chat foundation ที่รันได้จริง และมี OpenAI-compatible Chat Completions transport ที่ผ่าน deterministic HTTP fixtures บน Ubuntu และ Windows
+Zooid มี Basic Chat foundation และ OpenAI-compatible Chat Completions transport ที่ผ่าน Ubuntu/Windows CI แล้ว รวมถึง live-qualification harness แบบสอง turn ที่ผ่าน deterministic fixtures
 
-สิ่งที่ **ยังไม่ถือว่าผ่าน** คือ external live model smoke test. Router, Ticket, Recovery, Project และ Group ยังไม่เริ่ม implementation.
+external real-model qualification ยังไม่ผ่าน เพราะต้องรันจาก environment ที่เข้าถึง endpoint จริงได้ Router จึงยัง gated
 
 - [ZOOID-0001 — Basic Chat Foundation](docs/development/tasks/ZOOID-0001-basic-chat-foundation.md)
 - [ZOOID-0002 — OpenAI-Compatible Provider Adapter](docs/development/tasks/ZOOID-0002-openai-compatible-provider.md)
+- [ZOOID-0003 — External Live Provider Qualification](docs/development/tasks/ZOOID-0003-live-provider-qualification.md)
 
 ## Runtime
 
-ต้องมี Node.js 24 หรือใหม่กว่า ปัจจุบันไม่มี runtime npm dependency ภายนอก จึงไม่ต้อง `npm install` เพื่อรัน foundation/test suite
+ต้องมี Node.js 24 หรือใหม่กว่า ปัจจุบันไม่มี runtime npm dependency ภายนอก
 
 ทดสอบ:
 
@@ -27,13 +28,9 @@ npm test
 
 ## Fake provider mode
 
-ค่าเริ่มต้นเป็น deterministic fake provider:
-
 ```bash
 npm run chat
 ```
-
-เหมาะสำหรับ development/regression test เพราะไม่ต้องใช้ network หรือ credentials
 
 ## OpenAI-compatible provider mode
 
@@ -42,46 +39,84 @@ Zooid รองรับ non-streaming Chat Completions endpoint ที่ `<bas
 Environment variables:
 
 - `ZOOID_PROVIDER=openai-compatible`
-- `ZOOID_PROVIDER_BASE_URL` — เช่น base URL ที่ลงท้ายด้วย `/v1`
+- `ZOOID_PROVIDER_BASE_URL`
 - `ZOOID_PROVIDER_MODEL`
-- `ZOOID_PROVIDER_API_KEY` — optional; ส่งเป็น Bearer token เมื่อกำหนด
+- `ZOOID_PROVIDER_API_KEY` — optional
 - `ZOOID_PROVIDER_TIMEOUT_MS` — optional; default 120000 ms
 
-PowerShell example สำหรับ compatible local endpoint:
+PowerShell example:
 
 ```powershell
 $env:ZOOID_PROVIDER = "openai-compatible"
 $env:ZOOID_PROVIDER_BASE_URL = "http://127.0.0.1:11434/v1"
-$env:ZOOID_PROVIDER_MODEL = "gpt-oss:20b"
-# ถ้า endpoint ต้องใช้ token:
-# $env:ZOOID_PROVIDER_API_KEY = "<set-secret-in-shell-only>"
+$env:ZOOID_PROVIDER_MODEL = "<installed-compatible-model>"
+Remove-Item Env:ZOOID_PROVIDER_API_KEY -ErrorAction SilentlyContinue
 npm run chat
 ```
 
-Bash example:
+If authentication is required, set `ZOOID_PROVIDER_API_KEY` only in the shell. Zooid does not auto-load `.env` in this checkpoint.
 
-```bash
-export ZOOID_PROVIDER=openai-compatible
-export ZOOID_PROVIDER_BASE_URL=http://127.0.0.1:11434/v1
-export ZOOID_PROVIDER_MODEL='gpt-oss:20b'
-# export ZOOID_PROVIDER_API_KEY='<set-secret-in-shell-only>'
-npm run chat
+## Live provider qualification
+
+ZOOID-0003 provides:
+
+```powershell
+npm run qualify:provider
 ```
 
-`.env.example` เป็นเอกสารตัวอย่างเท่านั้น Zooid **ไม่ auto-load .env** ใน checkpoint นี้ และ `.env/.env.*` ถูก ignore เพื่อช่วยลดความเสี่ยง commit secret โดยไม่ตั้งใจ
+The runner creates an isolated session and performs two turns:
 
-Official Ollama documentation describes OpenAI compatibility for `/v1/chat/completions`: https://ollama.com/blog/openai-compatibility
+1. turn 1 gives the real model a random marker;
+2. turn 2 asks for that exact marker using the same persisted Zooid session.
 
-ZOOID-0002 ทดสอบ protocol ด้วย local HTTP fixtures เท่านั้น ไม่ได้พิสูจน์ endpoint/model ภายนอกจริง
+PASS requires:
+- exactly four ordered complete messages;
+- the second response contains the exact random marker.
+
+Example PowerShell setup:
+
+```powershell
+git fetch origin
+git switch agent/zooid-0003-live-provider-qualification
+git pull --ff-only
+
+$env:ZOOID_PROVIDER = "openai-compatible"
+$env:ZOOID_PROVIDER_BASE_URL = "http://127.0.0.1:11434/v1"
+$env:ZOOID_PROVIDER_MODEL = "<installed-compatible-model>"
+Remove-Item Env:ZOOID_PROVIDER_API_KEY -ErrorAction SilentlyContinue
+$env:ZOOID_PROVIDER_TIMEOUT_MS = "120000"
+
+npm run qualify:provider
+```
+
+Optional evidence retention:
+
+```powershell
+$env:ZOOID_QUALIFY_KEEP_DATA = "1"
+npm run qualify:provider
+```
+
+Expected passing fields:
+
+```json
+{
+  "outcome": "PASS",
+  "messageCount": 4,
+  "orderedCompleteTranscript": true,
+  "markerRecovered": true
+}
+```
+
+Do not commit API keys or raw secret-bearing shell history. Record only sanitized qualification results.
 
 ## CLI commands
 
-- `/new` สร้าง session ใหม่
-- `/open <session-id>` เปิด session เดิม
-- `/exit` ออกจากโปรแกรม
-- `Ctrl+C` ระหว่าง provider request ใช้ยกเลิก request นั้น
+- `/new`
+- `/open <session-id>`
+- `/exit`
+- `Ctrl+C` during provider request cancels that request
 
-ข้อมูล development session เก็บใน `.zooid-data/` โดยค่าเริ่มต้น หรือกำหนด root แยกด้วย `ZOOID_DATA_DIR`
+Default session data root is `.zooid-data/`, override with `ZOOID_DATA_DIR`.
 
 ## เอกสารการพัฒนา
 
@@ -92,4 +127,4 @@ ZOOID-0002 ทดสอบ protocol ด้วย local HTTP fixtures เท่�
 - [Development reports](docs/development/reports/README.md)
 - [Development handoff](docs/development/guides/development-handoff.md)
 
-Task number เป็นลำดับงานพัฒนาบน GitHub ไม่ใช่เลขเวอร์ชันซอฟต์แวร์ Branch ใช้สำหรับลงมือทำ ส่วน task/report ที่ merge เข้า main เป็นประวัติถาวรของโครงการ
+Task number เป็น development-history sequence ไม่ใช่ software version.
