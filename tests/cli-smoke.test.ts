@@ -10,7 +10,7 @@ test("CLI sends text through the fake provider and exits cleanly", async () => {
 
   try {
     const result = await runCliConversation(dataRoot);
-    assert.equal(result.code, 0, result.stderr);
+    assert.equal(result.code, 0, `stderr:\n${result.stderr}\nstdout:\n${result.stdout}`);
     assert.match(result.stdout, /Zooid — Powered by CogentNexus/);
     assert.match(result.stdout, /Provider: fake/);
     assert.match(result.stdout, /zooid> Echo: hello from cli/);
@@ -29,11 +29,13 @@ function runCliConversation(dataRoot: string): Promise<{ code: number | null; st
 
     let stdout = "";
     let stderr = "";
+    let helloSent = false;
     let exitSent = false;
+    const readyMarker = "Commands: /new, /open <session-id>, /exit";
     const responseMarker = "zooid> Echo: hello from cli";
     const timeout = setTimeout(() => {
       child.kill();
-      reject(new Error("CLI smoke test timed out."));
+      reject(new Error(`CLI smoke test timed out. stdout:\n${stdout}\nstderr:\n${stderr}`));
     }, 5_000);
 
     child.stdout.setEncoding("utf8");
@@ -42,7 +44,12 @@ function runCliConversation(dataRoot: string): Promise<{ code: number | null; st
     child.stdout.on("data", (chunk: string) => {
       stdout += chunk;
 
-      if (!exitSent && stdout.includes(responseMarker)) {
+      if (!helloSent && stdout.includes(readyMarker)) {
+        helloSent = true;
+        child.stdin.write("hello from cli\n");
+      }
+
+      if (helloSent && !exitSent && stdout.includes(responseMarker)) {
         exitSent = true;
         child.stdin.end("/exit\n");
       }
@@ -61,7 +68,5 @@ function runCliConversation(dataRoot: string): Promise<{ code: number | null; st
       clearTimeout(timeout);
       resolve({ code, stdout, stderr });
     });
-
-    child.stdin.write("hello from cli\n");
   });
 }

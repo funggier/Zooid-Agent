@@ -8,7 +8,6 @@ import { FileSessionStore } from "../storage/file-session-store.ts";
 const store = new FileSessionStore();
 const provider = new FakeProvider({ delayMs: 50 });
 const chat = new ChatService({ provider, store });
-const readline = createInterface({ input, output, terminal: Boolean(input.isTTY && output.isTTY) });
 
 let session = await chat.createSession();
 let activeController: AbortController | undefined;
@@ -17,6 +16,12 @@ output.write("Zooid — Powered by CogentNexus\n");
 output.write("Provider: fake (deterministic development mode)\n");
 output.write(`Session: ${session.id}\n`);
 output.write("Commands: /new, /open <session-id>, /exit\n\n");
+
+const readline = createInterface({
+  input,
+  output,
+  terminal: Boolean(input.isTTY && output.isTTY),
+});
 
 readline.on("SIGINT", () => {
   if (activeController) {
@@ -50,12 +55,14 @@ try {
 
     if (trimmed.startsWith("/open ")) {
       const sessionId = trimmed.slice("/open ".length).trim();
+
       try {
         session = await chat.openSession(sessionId);
         output.write(`Opened session: ${session.id} (${session.messages.length} messages)\n`);
       } catch (error) {
         output.write(`zooid> error: ${error instanceof Error ? error.message : "unknown error"}\n`);
       }
+
       promptIfInteractive();
       continue;
     }
