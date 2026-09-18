@@ -47,7 +47,7 @@ Real qualification:
 
 ZOOID-0004 starts with deterministic ProviderDescriptor/Registry/Capability contracts and manual routing. Automatic fallback, cost/latency routing and parallel inference are explicitly deferred.
 
-The baseline must work with one small model and serial dispatch.
+The baseline must work with one model and serial dispatch. The user explicitly requires `qwen3.8:27b`-only operation to remain supported even when inference is very slow. Small/helper models are optional optimizations, not dependencies. Timeout/watchdog behavior must therefore be configurable and must distinguish deliberate slow inference from actual failure.
 
 ## Next action
 

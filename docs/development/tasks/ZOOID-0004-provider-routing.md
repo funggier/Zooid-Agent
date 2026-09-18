@@ -19,7 +19,7 @@ ZOOID-0003 closed Basic Provider Chat by proving a real two-turn persisted conve
 
 The next user-directed phase is provider/model routing without changing Zooid session identity. The design must preserve a neutral transcript and make compatibility failures explicit before network dispatch.
 
-Real host qualification also produced a practical constraint: the target Windows machine can run a small local model acceptably, while a 27B model was not responsive enough for an interactive qualification when Ollama reported 100% CPU execution. Router design must therefore remain viable with one small model and must not require parallel multi-model inference.
+Real host qualification also produced a practical constraint: the target Windows machine can run a small local model acceptably, while a 27B model was not responsive enough for the original interactive qualification window when Ollama reported 100% CPU execution. The user explicitly requires that Zooid must also remain fully usable with `qwen3.8:27b` as the **only** model, even when it is very slow. Router design therefore must support both small-model operation and slow single-large-model operation without requiring helper models or parallel multi-model inference.
 
 ## Goal
 
@@ -58,7 +58,12 @@ Not in ZOOID-0004:
 - Credentials are provider-scoped and must never cross provider boundaries.
 - Unsupported content/roles are rejected explicitly rather than silently dropped.
 - Manual switching precedes automatic routing policy.
-- The baseline must work serially with a single small model.
+- The baseline must work serially with a single model of any supported size.
+- `qwen3.8:27b`-only operation is an explicit USER_DIRECTION: slow inference is acceptable and must not be classified as failure merely because it exceeds an interactive latency expectation.
+- Router/controller logic must not depend on a second "helper" model.
+- Provider timeout must be configurable so deliberately slow local inference can be allowed to finish.
+- Durable/in-flight state must remain correct while a slow model is still computing; changing route must not corrupt attribution.
+- Deterministic control-plane work should avoid unnecessary LLM calls so a single slow model is spent on work that actually requires model intelligence.
 
 ## Work packages
 
@@ -131,6 +136,8 @@ Design consequence:
 
 Provider Routing tests must be deterministic and cheap. A live model may be used for a bounded acceptance smoke later, but normal router tests must not depend on multiple loaded models or parallel inference.
 
+The earlier 180-second timeout is evidence about the chosen timeout/window, not evidence that `qwen3.8:27b` is unsupported. A later acceptance path must explicitly allow an extended timeout/no premature watchdog failure and prove that Zooid can wait safely for a single slow large model.
+
 ## Evidence rules
 
 Every production change must record:
@@ -153,6 +160,14 @@ Every production change must record:
 - Created branch `agent/zooid-0004-provider-routing`.
 - Read the Provider Routing phase plan, system overview, requirements, decisions and quality gates before implementation.
 - Chose deterministic registry/capability contract as the first implementation slice.
+
+### 2026-09-18 — Single slow large-model requirement added
+
+- User explicitly required that Zooid must be able to operate with `qwen3.8:27b` as the only model even if it is very slow.
+- Small models remain useful optional resources, not architectural requirements.
+- Router/controller must not require a helper model, parallel inference, or latency-based failover.
+- Slow inference must be distinguishable from provider failure through configurable timeout/cancellation semantics.
+- A future live acceptance will re-run the large model with an intentionally extended waiting policy rather than the earlier 180-second interactive gate.
 
 ## Next action
 

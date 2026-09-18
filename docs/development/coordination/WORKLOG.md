@@ -1,5 +1,23 @@
 # Worklog
 
+## 2026-09-18 — Single slow-model baseline clarified
+
+The user explicitly required Zooid to remain usable with `qwen3.8:27b` as the only model even when inference is very slow.
+
+This changes the interpretation of the ZOOID-0003 27B timeout: the 180-second result is a performance observation under that qualification window, not a reason to require a smaller helper model.
+
+Architecture constraints carried forward into ZOOID-0004:
+- single-model serial operation is mandatory;
+- `qwen3.8:27b`-only mode is supported by design;
+- helper/small models are optional optimizations;
+- no router/controller dependency on parallel inference;
+- provider timeout must be configurable;
+- slow inference alone is not failure;
+- control-plane logic should stay deterministic and avoid unnecessary LLM calls.
+
+---
+
+
 ## 2026-09-18 — ZOOID-0004 Provider Routing opened
 
 ZOOID-0003 merged through PR #3 to main commit `f129f99fe6b3f25b3e9a22f26715b0d9a0051ffd`.

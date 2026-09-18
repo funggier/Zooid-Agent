@@ -12,10 +12,13 @@
 - Next action: RED tests for registry/capability validation, then minimal implementation
 - Automatic fallback: DEFERRED
 - Parallel model inference requirement: NONE
+- Single-model requirement: MUST support `qwen3.8:27b`-only operation even with very high latency
+- Helper model requirement: NONE
+- Slow-model policy: configurable timeout; slowness alone is not provider failure
 - Background execution: NOT_CONFIGURED
 
 ## Session recovery rule
 
 Read `AGENTS.md`, this file, `STATUS.md`, ZOOID-0004 and the Provider Routing phase plan.
 
-The real host evidence from ZOOID-0003 is a design constraint: router correctness must remain testable without loading multiple real models, and one-small-model serial operation must remain viable.
+The real host evidence from ZOOID-0003 is a design constraint: router correctness must remain testable without loading multiple real models. Both one-small-model operation and `qwen3.8:27b`-only slow operation must remain viable.
