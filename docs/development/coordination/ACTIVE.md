@@ -1,25 +1,21 @@
 # Active Work
 
-- State: READY_TO_MERGE
-- Active development task: [ZOOID-0003 — External Live Provider Qualification](../tasks/ZOOID-0003-live-provider-qualification.md)
-- Task ID: ZOOID-0003
-- Branch: `agent/zooid-0003-live-provider-qualification`
-- Base/main SHA: `cffc12030d345e9b04a63e918bff50c96b608a7b`
-- Verified harness SHA: `7b79e0d427c59d7706213c48fceb8cf65c59d5ef`
-- Harness workflow: `35360017018` SUCCESS — Ubuntu + Windows, 24/24 tests
-- Real endpoint: `http://127.0.0.1:11434/v1`
-- Real qualification model: `qwen3:1.7b`
-- Live qualification: PASS
-- Live runtime: ~16.08 seconds
-- Current phase: Basic Provider Chat — COMPLETE
-- Router status: READY_AFTER_MERGE
-- Pull request: #3
-- Next action: final CI → mark PR ready → merge → verify post-merge main CI → create next Provider Routing task
+- State: RUNNING
+- Active development task: [ZOOID-0004 — Provider Routing Foundation](../tasks/ZOOID-0004-provider-routing.md)
+- Task ID: ZOOID-0004
+- Branch: `agent/zooid-0004-provider-routing`
+- Base/main SHA: `f129f99fe6b3f25b3e9a22f26715b0d9a0051ffd`
+- Base post-merge workflow: `35362601729` SUCCESS — Ubuntu + Windows
+- Previous completed task: ZOOID-0003 — real local Ollama multi-turn PASS
+- Current phase: Provider Routing
+- Current slice: Provider capability + registry contract
+- Next action: RED tests for registry/capability validation, then minimal implementation
+- Automatic fallback: DEFERRED
+- Parallel model inference requirement: NONE
 - Background execution: NOT_CONFIGURED
-- Final report: [ZOOID-0003 report](../reports/ZOOID-0003-live-provider-qualification-report.md)
 
 ## Session recovery rule
 
-Read `AGENTS.md`, this file, `STATUS.md`, ZOOID-0003, the historical checkpoint, and the final report.
+Read `AGENTS.md`, this file, `STATUS.md`, ZOOID-0004 and the Provider Routing phase plan.
 
-The historical `BLOCKED_EXTERNAL_EXECUTION` checkpoint is superseded by the real local PASS after Remote Desktop Commander became available.
+The real host evidence from ZOOID-0003 is a design constraint: router correctness must remain testable without loading multiple real models, and one-small-model serial operation must remain viable.

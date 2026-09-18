@@ -4,19 +4,18 @@
 **Repository:** funggier/Zooid-Agent  
 **Planning:** DOCUMENTED  
 **Implementation:** IN_PROGRESS  
-**Execution mode:** READY_TO_MERGE  
-**Active task:** ZOOID-0003 — External Live Provider Qualification  
-**Working branch:** `agent/zooid-0003-live-provider-qualification`  
-**Main baseline:** `cffc12030d345e9b04a63e918bff50c96b608a7b` / workflow `35359739796` SUCCESS  
-**Verified harness:** `7b79e0d427c59d7706213c48fceb8cf65c59d5ef` / workflow `35360017018` SUCCESS  
-**External live:** PASS on `qwen3:1.7b` through local Ollama `0.32.15`
+**Execution mode:** RUNNING  
+**Active task:** ZOOID-0004 — Provider Routing Foundation  
+**Working branch:** `agent/zooid-0004-provider-routing`  
+**Verified main baseline:** `f129f99fe6b3f25b3e9a22f26715b0d9a0051ffd`  
+**Post-merge workflow:** `35362601729` — SUCCESS on Ubuntu + Windows
 
 ## Phase status
 
 | Phase | Plan | Code | Acceptance |
 | --- | --- | --- | --- |
-| Basic provider chat | DOCUMENTED | FOUNDATION_COMPLETE; COMPATIBLE_TRANSPORT_VERIFIED; LIVE_HARNESS_VERIFIED | PASS |
-| Provider routing | DOCUMENTED | NOT_STARTED | READY_AFTER_ZOOID_0003_MERGE |
+| Basic provider chat | DOCUMENTED | COMPLETE | PASS — real local Ollama multi-turn |
+| Provider routing | DOCUMENTED | IN_PROGRESS — ZOOID-0004 | NOT_RUN |
 | Durable tickets | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Recovery | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Context and Project | DOCUMENTED; four subplans | NOT_STARTED | NOT_RUN |
@@ -24,34 +23,32 @@
 | Clean lifecycle | CROSS_PHASE_PLAN | FOUNDATION_RULES_APPLIED | PARTIAL |
 | CNX baseline | AUDIT_PROTOCOL_DOCUMENTED | NOT_EVALUATED | NOT_RUN |
 
-## Current verified capability
+## Verified Basic Provider Chat capability
 
-Zooid can now:
+Zooid can:
 
-- run deterministic fake-provider chat;
 - persist and reopen ordered sessions;
-- use an OpenAI-compatible non-streaming HTTP transport;
-- normalize failure/cancel/timeout behavior;
-- protect provider secrets from normal output;
-- execute a repeatable two-turn real-model qualification;
-- pass the qualification against a real local Ollama endpoint;
-- prove exact marker recovery through persisted session history.
+- use deterministic fake and OpenAI-compatible providers;
+- normalize provider error/cancel/timeout behavior;
+- execute a real local two-turn conversation;
+- preserve history and recover an exact random marker through the same Zooid session.
 
-Live result:
-- provider: openai-compatible
-- model: `qwen3:1.7b`
+Real qualification:
+- device: `CDQ-P`
 - endpoint: `http://127.0.0.1:11434/v1`
-- messageCount: 4
-- orderedCompleteTranscript: true
-- markerRecovered: true
+- model: `qwen3:1.7b`
+- result: PASS
+- message count: 4
+- ordered transcript: true
+- marker recovered: true
 - runtime: ~16.08 s
 
-## Host performance observation
+## Current Router direction
 
-`qwen3.8:27b` timed out under the same host because the model was running CPU-only and was not responsive enough for the qualification window.
+ZOOID-0004 starts with deterministic ProviderDescriptor/Registry/Capability contracts and manual routing. Automatic fallback, cost/latency routing and parallel inference are explicitly deferred.
 
-This does not invalidate Basic Provider Chat. It is a performance/resource observation that should inform scheduler and context-budget design.
+The baseline must work with one small model and serial dispatch.
 
 ## Next action
 
-Merge ZOOID-0003 only after final branch/PR CI is green. Then verify post-merge `main` and create the next numbered Provider Routing task.
+Implement registry/capability RED tests and minimal production contract, then run Ubuntu/Windows CI.

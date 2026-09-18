@@ -1,42 +1,24 @@
 # Worklog
 
-## 2026-09-18 — ZOOID-0003 external live gate PASS
+## 2026-09-18 — ZOOID-0004 Provider Routing opened
 
-Remote Desktop Commander became available and connected to device `CDQ-P`, allowing the previously blocked live gate to execute on the real Windows host.
+ZOOID-0003 merged through PR #3 to main commit `f129f99fe6b3f25b3e9a22f26715b0d9a0051ffd`.
 
-Host baseline:
-- Windows 10 Pro build 19045
-- Intel Core Ultra 5 245K, 14C/14T
-- 31.46 GB RAM
-- Intel Graphics
-- Node.js 24.18.0
-- Ollama 0.32.15
+Post-merge workflow `35362601729` completed SUCCESS on Ubuntu and Windows.
 
-A clean clone at `T:\Zooid-Agent-livecheck` checked out head `2b9ec0c415aa63dbbd15147289b79dfdefc6260e` and passed all 24 local tests.
+Opened branch `agent/zooid-0004-provider-routing`.
 
-First live attempt with existing `qwen3.8:27b` correctly timed out after 180 seconds. A direct 8-token request also timed out after ~30 seconds. Ollama reported the model running 100% CPU, so this was recorded as a host/model performance limitation.
+Read the existing Provider Routing phase plan, system overview, requirements, design decisions and quality gates before setting scope.
 
-A smaller `qwen3:1.7b` model was then pulled specifically to isolate functional correctness from large-model latency.
+The first slice is deterministic provider capability + registry validation. Manual switching remains the baseline; automatic fallback/load balancing/cost routing are deferred.
 
-The exact same Zooid live qualification passed in ~16.08 seconds:
-- outcome PASS
-- messageCount 4
-- orderedCompleteTranscript true
-- markerRecovered true
-
-Basic Provider Chat is now COMPLETE and the Provider Router gate is released after merge.
-
-Detailed evidence: [ZOOID-0003 final report](../reports/ZOOID-0003-live-provider-qualification-report.md).
+Real host evidence from ZOOID-0003 is carried forward as a constraint: `qwen3:1.7b` passed the live gate while `qwen3.8:27b` was not responsive enough under observed CPU-only execution. Router correctness must therefore remain cheap, serial and independent of parallel real-model inference.
 
 ---
 
-## 2026-09-18 — ZOOID-0003 harness verified; external execution initially blocked
+## 2026-09-18 — ZOOID-0003 external live gate PASS
 
-Implemented the two-turn live-provider qualification harness at `7b79e0d427c59d7706213c48fceb8cf65c59d5ef`.
-
-Workflow `35360017018` completed SUCCESS on Ubuntu and Windows with 24/24 tests.
-
-At that time no local execution connector was available, so the task correctly recorded `BLOCKED_EXTERNAL_EXECUTION`. That checkpoint is preserved historically and later superseded by the real host PASS above.
+Remote Desktop Commander enabled execution on device `CDQ-P`. The real OpenAI-compatible Ollama path passed with `qwen3:1.7b`; detailed evidence remains in the ZOOID-0003 final report.
 
 ---
 
