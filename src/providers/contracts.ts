@@ -1,4 +1,4 @@
-import type { ChatMessage } from "../domain/messages.ts";
+import type { ChatMessage, MessageRole } from "../domain/messages.ts";
 
 export type ProviderErrorKind =
   | "auth"
@@ -7,6 +7,32 @@ export type ProviderErrorKind =
   | "network"
   | "unsupported"
   | "invalid_response";
+
+export type ProviderContentType = "text" | "image" | "audio" | "file" | "tool";
+
+export interface ProviderDescriptor {
+  providerId: string;
+  adapterRevision: string;
+  models: readonly string[];
+  supportedRoles: readonly MessageRole[];
+  contentTypes: readonly ProviderContentType[];
+  streamingSupport: boolean;
+  contextLimit?: number;
+  usageSupport: boolean;
+}
+
+export interface ProviderRequirements {
+  roles?: readonly MessageRole[];
+  contentTypes?: readonly ProviderContentType[];
+  streaming?: boolean;
+  usage?: boolean;
+  minimumContextLimit?: number;
+}
+
+export interface ProviderCompatibilityResult {
+  compatible: boolean;
+  missing: string[];
+}
 
 export interface ChatRequest {
   requestId: string;
