@@ -1,23 +1,22 @@
 # Active Work
 
-- State: READY_FOR_NEXT_TASK
-- Active development task: NONE
-- Last completed task: [ZOOID-0002 — OpenAI-Compatible Provider Adapter](../tasks/ZOOID-0002-openai-compatible-provider.md)
-- Next task sequence: ZOOID-0003
-- Completed branch: `agent/zooid-0002-openai-compatible-provider`
-- Base/main SHA: `a477fe7abedee21e03f171e249c5c8bdac7cdecb`
-- Last verified implementation SHA: `26f5da9924892826bbcbe968f28cea72e639f889`
-- Verified workflow: `35359099312` SUCCESS — Ubuntu + Windows, 22/22 tests
+- State: RUNNING
+- Active development task: [ZOOID-0003 — External Live Provider Qualification](../tasks/ZOOID-0003-live-provider-qualification.md)
+- Task ID: ZOOID-0003
+- Owner: ChatGPT GitHub development session
+- Branch: `agent/zooid-0003-live-provider-qualification`
+- Base/main SHA: `cffc12030d345e9b04a63e918bff50c96b608a7b`
+- Base post-merge workflow: `35359739796` SUCCESS — Ubuntu + Windows
 - Current phase: Basic Provider Chat
-- External live smoke: NOT_RUN
-- Next action: merge ZOOID-0002 through PR, then create ZOOID-0003 for authorized external compatible endpoint multi-turn qualification
-- Remaining gate: real model endpoint qualification; Router must not start before it passes
+- Last completed task: [ZOOID-0002](../tasks/ZOOID-0002-openai-compatible-provider.md)
+- Current checkpoint: qualification harness implemented; deterministic CI pending
+- Next action: verify harness on Ubuntu/Windows, then execute against an authorized real compatible endpoint if reachable
+- Remaining gate: external real-model multi-turn qualification
+- Router status: GATED
 - Background execution: NOT_CONFIGURED
 
 ## Session recovery rule
 
-A new session should read `AGENTS.md`, this file, `STATUS.md`, the latest numbered task and report.
+Read `AGENTS.md`, this file, `STATUS.md`, then ZOOID-0003.
 
-The Git branch/ref is authoritative for current HEAD. Documents record the last verified implementation SHA because a document cannot reliably contain the SHA of the commit that contains itself.
-
-If no real endpoint is reachable in ZOOID-0003, record BLOCKED with the exact missing dependency rather than marking Basic Provider Chat complete.
+Do not mark a fixture run as external live evidence. If this execution context cannot reach the user's/local/provider endpoint, persist `BLOCKED_EXTERNAL_EXECUTION` with the exact command and environment contract needed for the next executor.
