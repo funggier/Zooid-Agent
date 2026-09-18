@@ -141,17 +141,17 @@ Planned:
 - `tests/provider-catalog-store.test.ts`
 
 Acceptance:
-- [ ] versioned schema revision 1 exists;
-- [ ] missing catalog opens as an empty catalog without inventing providers;
-- [ ] save uses temp file + atomic rename;
-- [ ] reopen preserves provider/model ordering and policy;
-- [ ] duplicate/blank IDs and models are rejected;
-- [ ] unknown adapter kinds are rejected at validation boundary;
-- [ ] embedded endpoint credentials are rejected;
-- [ ] raw credential/secret values have no catalog field;
-- [ ] optional `credentialRef` is persisted as a reference only;
-- [ ] corrupt catalog is preserved and reported rather than overwritten;
-- [ ] tests require no network/model inference.
+- [x] versioned schema revision 1 exists;
+- [x] missing catalog opens as an empty catalog without inventing providers;
+- [x] save uses temp file + atomic rename;
+- [x] reopen preserves provider/model ordering and policy;
+- [x] duplicate/blank IDs and models are rejected;
+- [x] unknown adapter kinds are rejected at validation boundary;
+- [x] embedded endpoint credentials are rejected;
+- [x] raw credential/secret values have no catalog field;
+- [x] optional `credentialRef` is persisted as a reference only;
+- [x] corrupt catalog is preserved and reported rather than overwritten;
+- [x] tests require no network/model inference.
 
 ### B — Provider Configuration Service
 
@@ -249,6 +249,31 @@ Every production slice records:
 - chose a versioned file-backed catalog for Phase 2 so provider management remains zero-runtime-dependency and SQLite can remain a Phase 3 Ticket decision.
 - separated desired policy from observed discovery availability.
 
+### 2026-09-19 — Work Package A verified
+
+TDD RED:
+- test-only SHA: `b583b83c81f005a2446f8bd5bb2095c852ac3b2e`
+- workflow: `35375708930`
+- expected failure: 40 existing tests passed; new catalog test file failed because `provider-catalog.ts` did not yet exist.
+
+Minimal GREEN:
+- implementation SHA: `1a35200f24b5b08c9b1da07f399b2c68c7da35f3`
+- workflow: `35375804129` — SUCCESS Ubuntu + Windows
+- tests: 48 passed / 0 failed
+- live provider/network/model inference: none
+
+Implemented:
+- versioned ProviderCatalog revision 1;
+- strict supported adapter boundary (`fake`, `openai-compatible`);
+- desired provider/model `enabled|disabled` policy;
+- optional `credentialRef` only; raw secret-shaped fields are rejected as unknown;
+- OpenAI-compatible and discovery URL credential/query/fragment rejection;
+- optional independent `ollama` discovery configuration;
+- missing-file → empty catalog semantics;
+- atomic temp-write + rename;
+- corrupt/schema-invalid catalog preservation via explicit error;
+- stable provider/model ordering on reopen.
+
 ## Next action
 
-Implement Work Package A with RED tests first: durable catalog schema, validation, missing/corrupt-file semantics and atomic persistence. No network and no live model are needed.
+Implement Work Package B using RED tests first: one Provider Configuration Service for add/enable/disable/remove provider and model operations with explicit conflict/not-found errors and serialized durable writes.

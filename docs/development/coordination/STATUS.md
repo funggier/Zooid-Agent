@@ -16,7 +16,7 @@
 | --- | --- | --- | --- |
 | Basic provider chat | DOCUMENTED | COMPLETE | PASS — real local Ollama multi-turn |
 | Provider routing foundation | DOCUMENTED | COMPLETE — ZOOID-0004 | PASS — switching + real routed Ollama |
-| Provider configuration/discovery | DOCUMENTED — ZOOID-0005 | IN_PROGRESS | NOT_RUN |
+| Provider configuration/discovery | DOCUMENTED — ZOOID-0005 | CATALOG_STORE_VERIFIED; CONFIG_SERVICE_IN_PROGRESS | PARTIAL |
 | Durable tickets | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Recovery | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Context and Project | DOCUMENTED; four subplans | NOT_STARTED | NOT_RUN |
@@ -45,6 +45,16 @@ Desired enable/disable state is durable policy. Availability is observed state. 
 
 Initial persistence is a versioned, atomic JSON catalog under Zooid's data root with no raw secrets. SQLite remains a later Ticket-phase storage decision.
 
+## Verified Provider Catalog foundation
+
+Work Package A:
+- RED `b583b83c81f005a2446f8bd5bb2095c852ac3b2e`: expected missing catalog implementation.
+- GREEN `1a35200f24b5b08c9b1da07f399b2c68c7da35f3`.
+- workflow `35375804129`: SUCCESS Ubuntu + Windows.
+- 48/48 tests.
+
+Catalog is versioned, atomic, strict-schema, secret-free by construction and preserves corrupt input rather than overwriting it.
+
 ## Next action
 
-Implement ZOOID-0005 Work Package A with deterministic RED tests for catalog persistence/validation, then minimal GREEN.
+Implement Provider Configuration Service mutation semantics using deterministic tests and the verified catalog store.

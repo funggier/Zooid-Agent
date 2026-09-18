@@ -8,8 +8,8 @@
 - Base post-merge workflow: `35375409259` SUCCESS — Ubuntu + Windows
 - Previous completed task: ZOOID-0004 — Provider Routing Foundation
 - Current phase: Provider Routing follow-on
-- Current slice: Durable provider catalog schema/store
-- Next action: Work Package A RED tests → minimal implementation → Ubuntu/Windows GREEN
+- Current slice: Provider Configuration Service
+- Next action: Work Package B RED tests → minimal configuration service → Ubuntu/Windows GREEN
 - Catalog principle: Adapter ≠ Provider Instance ≠ Model
 - Discovery policy: read-only; never auto-enable
 - Desired policy: enabled/disabled; removed means absent from active catalog
@@ -25,3 +25,12 @@
 Read `AGENTS.md`, this file, `STATUS.md`, ZOOID-0005 and the Provider Routing phase plan.
 
 Do not reopen ZOOID-0004 implementation. It is merged and post-merge verified. ZOOID-0005 owns Provider Configuration/Discovery.
+
+
+## Work Package A verified
+
+- RED SHA: `b583b83c81f005a2446f8bd5bb2095c852ac3b2e`
+- RED workflow: `35375708930` — expected missing implementation
+- GREEN SHA: `1a35200f24b5b08c9b1da07f399b2c68c7da35f3`
+- GREEN workflow: `35375804129` — SUCCESS Ubuntu + Windows
+- tests: 48/48

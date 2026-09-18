@@ -1,5 +1,25 @@
 # Worklog
 
+## 2026-09-19 — ZOOID-0005 Work Package A catalog GREEN
+
+RED:
+- `b583b83c81f005a2446f8bd5bb2095c852ac3b2e`
+- workflow `35375708930`
+- 40 existing tests passed; new catalog suite failed because implementation modules did not yet exist.
+
+GREEN:
+- `1a35200f24b5b08c9b1da07f399b2c68c7da35f3`
+- workflow `35375804129`
+- SUCCESS Ubuntu + Windows
+- 48/48 tests
+
+Implemented versioned strict ProviderCatalog and atomic file store with empty-on-missing, corrupt preservation, adapter/model validation, endpoint credential rejection and credential-reference-only persistence.
+
+Next: Provider Configuration Service mutations.
+
+---
+
+
 ## 2026-09-19 — ZOOID-0005 Provider Configuration/Discovery opened
 
 PR #4 merged to `main` with actual merge SHA `5a6a472a01d4257241e6a6b46e62a7b7ed2051ea`.
