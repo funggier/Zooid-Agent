@@ -1,23 +1,23 @@
 # Active Work
 
 - State: READY_FOR_NEXT_TASK
-- Last completed task: [ZOOID-0001 — Basic Chat Foundation](../tasks/ZOOID-0001-basic-chat-foundation.md)
 - Active development task: NONE
-- Next task sequence: ZOOID-0002
-- Completed branch: `agent/zooid-0001-basic-chat-foundation`
-- Base SHA: `ecf1d582d09d9bc1798ad25c643e40f067c6bb23`
-- Last verified implementation SHA: `0da31b465846823cb09b8b64bfa48ca5879e0c58`
+- Last completed task: [ZOOID-0002 — OpenAI-Compatible Provider Adapter](../tasks/ZOOID-0002-openai-compatible-provider.md)
+- Next task sequence: ZOOID-0003
+- Completed branch: `agent/zooid-0002-openai-compatible-provider`
+- Base/main SHA: `a477fe7abedee21e03f171e249c5c8bdac7cdecb`
+- Last verified implementation SHA: `26f5da9924892826bbcbe968f28cea72e639f889`
+- Verified workflow: `35359099312` SUCCESS — Ubuntu + Windows, 22/22 tests
 - Current phase: Basic Provider Chat
-- Last checkpoint: runnable fake-provider chat foundation verified on Ubuntu + Windows
-- Next action: merge ZOOID-0001 through reviewable PR, then open ZOOID-0002 for first real provider configuration/adapter qualification
-- Remaining risks: live provider not yet selected/qualified; user-machine Windows qualification remains open
-- Evidence: [ZOOID-0001 report](../reports/ZOOID-0001-basic-chat-foundation-report.md)
+- External live smoke: NOT_RUN
+- Next action: merge ZOOID-0002 through PR, then create ZOOID-0003 for authorized external compatible endpoint multi-turn qualification
+- Remaining gate: real model endpoint qualification; Router must not start before it passes
 - Background execution: NOT_CONFIGURED
 
 ## Session recovery rule
 
-A new session should read `AGENTS.md`, this file, `STATUS.md`, then the latest numbered task/report.
+A new session should read `AGENTS.md`, this file, `STATUS.md`, the latest numbered task and report.
 
-The Git branch/ref is authoritative for the current HEAD. Documents record the last verified implementation SHA; they do not attempt to contain the SHA of the commit that contains themselves.
+The Git branch/ref is authoritative for current HEAD. Documents record the last verified implementation SHA because a document cannot reliably contain the SHA of the commit that contains itself.
 
-Do not start an unnumbered implementation task. Create ZOOID-0002 before beginning the next implementation scope.
+If no real endpoint is reachable in ZOOID-0003, record BLOCKED with the exact missing dependency rather than marking Basic Provider Chat complete.

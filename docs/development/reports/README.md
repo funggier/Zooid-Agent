@@ -2,8 +2,9 @@
 
 รายงานในโฟลเดอร์นี้บอกสิ่งที่ตรวจหรือทำจริง และต้องมี tested SHA/environment/observed result/limitations
 
-- [Development plan review](development-plan-review.md): การตรวจเอกสารตั้งต้น; ไม่มี software qualification
-- [ZOOID-0001 basic chat foundation](ZOOID-0001-basic-chat-foundation-report.md): runnable foundation, CI/failure history และข้อจำกัดก่อน live provider
+- [Development plan review](development-plan-review.md): planning-only checkpoint
+- [ZOOID-0001 basic chat foundation](ZOOID-0001-basic-chat-foundation-report.md): runnable internal foundation and CLI lifecycle evidence
+- [ZOOID-0002 OpenAI-compatible provider adapter](ZOOID-0002-openai-compatible-provider-report.md): HTTP protocol/transport fixtures, error/cancel/secret-handling evidence; external live smoke NOT_RUN
 
 Task IDs ในชื่อรายงานเป็น development-history sequence ไม่ใช่ release version.
 
