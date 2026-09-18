@@ -12,7 +12,7 @@
 - Last verified implementation SHA: `26f5da9924892826bbcbe968f28cea72e639f889`
 - Verified workflow: `35359099312` — SUCCESS, Ubuntu + Windows, 22/22 tests
 - Previous task: [ZOOID-0001](ZOOID-0001-basic-chat-foundation.md)
-- Report: [ZOOID-0002 report](../reports/ZOOID-0002-openai-compatible-provider-report.md)
+- Pull request: #2\n- Report: [ZOOID-0002 report](../reports/ZOOID-0002-openai-compatible-provider-report.md)
 - Phase: Basic Provider Chat
 - External live smoke: NOT_RUN
 
