@@ -3,7 +3,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { ChatService } from "../src/chat/chat-service.ts";
+import { ChatInputError, ChatService } from "../src/chat/chat-service.ts";
 import { ProviderError } from "../src/providers/contracts.ts";
 import { FakeProvider } from "../src/providers/fake-provider.ts";
 import { FileSessionStore } from "../src/storage/file-session-store.ts";
@@ -67,6 +67,22 @@ test("provider failure keeps provenance and marks the user message failed", asyn
     const persisted = await harness.store.load(harness.session.id);
     assert.equal(persisted.messages.length, 1);
     assert.equal(persisted.messages[0]?.status, "failed");
+  } finally {
+    await harness.cleanup();
+  }
+});
+
+
+test("blank input is rejected without changing the transcript", async () => {
+  const harness = await createHarness();
+  try {
+    await assert.rejects(
+      () => harness.chat.sendText(harness.session.id, "   \n\t"),
+      ChatInputError,
+    );
+
+    const persisted = await harness.store.load(harness.session.id);
+    assert.equal(persisted.messages.length, 0);
   } finally {
     await harness.cleanup();
   }
