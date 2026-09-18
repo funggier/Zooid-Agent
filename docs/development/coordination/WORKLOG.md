@@ -1,5 +1,30 @@
 # Worklog
 
+## 2026-09-19 — ZOOID-0005 Provider Configuration/Discovery opened
+
+PR #4 merged to `main` with actual merge SHA `5a6a472a01d4257241e6a6b46e62a7b7ed2051ea`.
+
+Verification:
+- closure push workflow `35375253456`: SUCCESS Ubuntu + Windows
+- PR workflow `35375258060`: SUCCESS Ubuntu + Windows
+- post-merge workflow `35375409259`: SUCCESS Ubuntu + Windows
+
+Created branch `agent/zooid-0005-provider-configuration-discovery` from that exact verified baseline.
+
+ZOOID-0005 owns the user-approved provider management design:
+- Adapter ≠ Provider Instance ≠ Model
+- existing-protocol provider/model changes are configuration operations
+- desired enabled/disabled policy is distinct from observed available/unavailable/unknown state
+- discovery is read-only and cannot auto-enable
+- removal does not erase historical attribution
+- catalog stores credential references only, never raw secrets
+- one Provider Configuration Service serves CLI now and future UI/API later
+
+First implementation slice: versioned atomic file-backed catalog, no network/model inference.
+
+---
+
+
 ## 2026-09-19 — ZOOID-0004 real routed CLI PASS and closure
 
 A clean clone of `agent/zooid-0004-provider-routing` at head `8aab78abaf070e3a605a7304aad63033ff8e975e` was executed on authorized Windows host `CDQ-P`.

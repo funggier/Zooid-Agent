@@ -3,19 +3,20 @@
 **Updated:** 2026-09-19  
 **Repository:** funggier/Zooid-Agent  
 **Planning:** DOCUMENTED  
-**Implementation:** ZOOID-0004_COMPLETE_CANDIDATE  
-**Execution mode:** WAITING_FOR_MERGE  
-**Active task:** ZOOID-0004 — Provider Routing Foundation  
-**Working branch:** `agent/zooid-0004-provider-routing`  
-**Verified main baseline:** `f129f99fe6b3f25b3e9a22f26715b0d9a0051ffd`  
-**Post-merge workflow:** `35362601729` — SUCCESS on Ubuntu + Windows
+**Implementation:** IN_PROGRESS  
+**Execution mode:** RUNNING  
+**Active task:** ZOOID-0005 — Provider Configuration and Discovery  
+**Working branch:** `agent/zooid-0005-provider-configuration-discovery`  
+**Verified main baseline:** `5a6a472a01d4257241e6a6b46e62a7b7ed2051ea`  
+**Post-merge workflow:** `35375409259` — SUCCESS on Ubuntu + Windows
 
 ## Phase status
 
 | Phase | Plan | Code | Acceptance |
 | --- | --- | --- | --- |
 | Basic provider chat | DOCUMENTED | COMPLETE | PASS — real local Ollama multi-turn |
-| Provider routing | DOCUMENTED | ZOOID-0004 COMPLETE CANDIDATE | PASS — deterministic switching + real routed Ollama |
+| Provider routing foundation | DOCUMENTED | COMPLETE — ZOOID-0004 | PASS — switching + real routed Ollama |
+| Provider configuration/discovery | DOCUMENTED — ZOOID-0005 | IN_PROGRESS | NOT_RUN |
 | Durable tickets | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Recovery | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Context and Project | DOCUMENTED; four subplans | NOT_STARTED | NOT_RUN |
@@ -23,80 +24,27 @@
 | Clean lifecycle | CROSS_PHASE_PLAN | FOUNDATION_RULES_APPLIED | PARTIAL |
 | CNX baseline | AUDIT_PROTOCOL_DOCUMENTED | NOT_EVALUATED | NOT_RUN |
 
-## Verified Basic Provider Chat capability
+## ZOOID-0004 final baseline
 
-Zooid can:
+- PR #4 merged with merge commit `5a6a472a01d4257241e6a6b46e62a7b7ed2051ea`.
+- closure push workflow `35375253456`: SUCCESS Ubuntu + Windows.
+- PR workflow `35375258060`: SUCCESS Ubuntu + Windows.
+- post-merge workflow `35375409259`: SUCCESS Ubuntu + Windows.
+- routed live Ollama acceptance with `qwen3:1.7b`: PASS.
+- dedicated `qwen3.8:27b` extended-wait live gate remains intentionally separate.
 
-- persist and reopen ordered sessions;
-- use deterministic fake and OpenAI-compatible providers;
-- normalize provider error/cancel/timeout behavior;
-- execute a real local two-turn conversation;
-- preserve history and recover an exact random marker through the same Zooid session.
+## Current Provider Configuration direction
 
-Real qualification:
-- device: `CDQ-P`
-- endpoint: `http://127.0.0.1:11434/v1`
-- model: `qwen3:1.7b`
-- result: PASS
-- message count: 4
-- ordered transcript: true
-- marker recovered: true
-- runtime: ~16.08 s
+ZOOID-0005 separates:
+- adapter implementation;
+- provider instance configuration;
+- model policy;
+- observed discovery availability.
 
-## Current Router direction
+Desired enable/disable state is durable policy. Availability is observed state. Discovery never auto-enables a resource. Removal from active configuration never rewrites historical route/message provenance.
 
-ZOOID-0004 starts with deterministic ProviderDescriptor/Registry/Capability contracts and manual routing. Automatic fallback, cost/latency routing and parallel inference are explicitly deferred.
-
-The baseline must work with one model and serial dispatch. The user explicitly requires `qwen3.8:27b`-only operation to remain supported even when inference is very slow. Small/helper models are optional optimizations, not dependencies. Timeout/watchdog behavior must therefore be configurable and must distinguish deliberate slow inference from actual failure.
-
-## Verified Router foundation
-
-At SHA `0c49d9d58b8c386209b461de6a64dbc7ac408e54`, Provider Registry/Capability tests passed 29/29 on Ubuntu and Windows in workflow `35365344223`.
-
-Work Package B was developed RED → GREEN:
-- RED SHA `dd61bec6b8f5efbf181763fac81a687ccee2cbdb`: expected missing-router failure.
-- GREEN SHA `823d3ff9b5670729f5391a4d4c2f1774036847c3`: workflow `35365663955` SUCCESS on Ubuntu + Windows, 33/33 tests.
-
-No automatic fallback or model inference is used by Router control-plane tests.
-
-## Host execution note
-
-The authorized Windows host was observed at ~51.33/51.46 GB committed memory with its fixed 20 GB pagefile effectively full. This caused local Node process/thread allocation failures. Clean GitHub runners remained green, so this is tracked separately from Zooid correctness.
-
-## Verified routed ChatService and CLI
-
-Work Package C1:
-- RED `aff7f8bca16f64fa292aa64e94dbb6bffb3f15b5`
-- GREEN `42c362929fd9c0b842d250502bb004aa5728ba5e`
-- workflow `35374568973` SUCCESS Ubuntu + Windows
-- 38/38 tests
-
-Work Package C2:
-- RED `dbbb126a775da74f265037714af6e161a74bf548`
-- GREEN `8b3926b2406695ad1475ffc1f80a3c0b04d23bd1`
-- workflow `35374806274` SUCCESS Ubuntu + Windows
-- 40/40 tests
-
-The production CLI now uses ProviderRegistry → ProviderRouter → routed ChatService. Route provenance is persisted before dispatch and remains stable across next-route changes.
-
-## Real routed CLI acceptance
-
-On authorized device `CDQ-P`, a clean clone at head `8aab78abaf070e3a605a7304aad63033ff8e975e` ran the production CLI against local Ollama through:
-
-`ProviderRegistry → ProviderRouter → routed ChatService → OpenAI-compatible adapter → qwen3:1.7b`
-
-Observed:
-- route: `openai-compatible/qwen3:1.7b`
-- response token: `ROUTED_OK`
-- process exit: 0
-- message count: 2
-- statuses: complete/complete
-- same persisted route ID across user/assistant: true
-- provider response ID present: true
-- result: PASS
-
-This does not qualify `qwen3.8:27b` latency. Dedicated extended-wait slow-model acceptance remains a separate requirement.
+Initial persistence is a versioned, atomic JSON catalog under Zooid's data root with no raw secrets. SQLite remains a later Ticket-phase storage decision.
 
 ## Next action
 
-Verify PR #4 closure CI, merge to main, verify post-merge CI, then start ZOOID-0005 Provider Configuration/Discovery.
+Implement ZOOID-0005 Work Package A with deterministic RED tests for catalog persistence/validation, then minimal GREEN.

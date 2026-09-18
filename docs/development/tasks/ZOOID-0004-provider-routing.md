@@ -16,7 +16,9 @@
 - Verified implementation SHA: `8b3926b2406695ad1475ffc1f80a3c0b04d23bd1`
 - Verified implementation workflow: `35374806274` — SUCCESS, Ubuntu + Windows, 40/40 tests
 - Live acceptance head: `8aab78abaf070e3a605a7304aad63033ff8e975e`
-- Pull request: #4
+- Pull request: #4 — MERGED
+- Merge/main SHA: `5a6a472a01d4257241e6a6b46e62a7b7ed2051ea`
+- Post-merge workflow: `35375409259` — SUCCESS, Ubuntu + Windows
 - Final report: [ZOOID-0004 Provider Routing Foundation Report](../reports/ZOOID-0004-provider-routing-report.md)
 
 ## Origin and reason
@@ -358,6 +360,14 @@ The user requirement remains: Zooid must support `qwen3.8:27b` as the only model
 - dedicated `qwen3.8:27b` slow live acceptance: DEFERRED, still required
 - Provider Configuration/Discovery implementation: MOVED TO ZOOID-0005
 
+## Final merge evidence
+
+- PR #4 closure push workflow `35375253456`: SUCCESS — Ubuntu + Windows.
+- PR #4 workflow `35375258060`: SUCCESS — Ubuntu + Windows.
+- PR #4 merged with merge commit `5a6a472a01d4257241e6a6b46e62a7b7ed2051ea`.
+- `main` was verified at the exact merge SHA.
+- post-merge workflow `35375409259`: SUCCESS — Ubuntu + Windows.
+
 ## Next action
 
-Verify final closure CI for PR #4, merge it to `main`, verify post-merge CI, then open ZOOID-0005 from the exact merged baseline.
+Continue the approved Provider Configuration/Discovery follow-on as ZOOID-0005 from the verified merge baseline.
