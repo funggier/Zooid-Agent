@@ -8,9 +8,14 @@ Zooid เป็นโครงการสร้างโปรแกรมเ�
 
 ## สถานะ
 
-Zooid มี Basic Chat foundation และ OpenAI-compatible Chat Completions transport ที่ผ่าน Ubuntu/Windows CI แล้ว รวมถึง live-qualification harness แบบสอง turn ที่ผ่าน deterministic fixtures
+Basic Provider Chat ผ่าน real-model qualification แล้ว
 
-external real-model qualification ยังไม่ผ่าน เพราะต้องรันจาก environment ที่เข้าถึง endpoint จริงได้ Router จึงยัง gated
+Verified path:
+`Zooid -> OpenAI-compatible HTTP -> local Ollama -> real model -> persisted multi-turn history`
+
+ZOOID-0003 passed against `qwen3:1.7b` on the real Windows host with exact random-marker recovery across two turns.
+
+Provider Routing is the next implementation phase after ZOOID-0003 merge.
 
 - [ZOOID-0001 — Basic Chat Foundation](docs/development/tasks/ZOOID-0001-basic-chat-foundation.md)
 - [ZOOID-0002 — OpenAI-Compatible Provider Adapter](docs/development/tasks/ZOOID-0002-openai-compatible-provider.md)
@@ -19,8 +24,6 @@ external real-model qualification ยังไม่ผ่าน เพราะ
 ## Runtime
 
 ต้องมี Node.js 24 หรือใหม่กว่า ปัจจุบันไม่มี runtime npm dependency ภายนอก
-
-ทดสอบ:
 
 ```bash
 npm test
@@ -34,8 +37,6 @@ npm run chat
 
 ## OpenAI-compatible provider mode
 
-Zooid รองรับ non-streaming Chat Completions endpoint ที่ `<base-url>/chat/completions`.
-
 Environment variables:
 
 - `ZOOID_PROVIDER=openai-compatible`
@@ -44,70 +45,30 @@ Environment variables:
 - `ZOOID_PROVIDER_API_KEY` — optional
 - `ZOOID_PROVIDER_TIMEOUT_MS` — optional; default 120000 ms
 
-PowerShell example:
+Example:
 
 ```powershell
 $env:ZOOID_PROVIDER = "openai-compatible"
 $env:ZOOID_PROVIDER_BASE_URL = "http://127.0.0.1:11434/v1"
-$env:ZOOID_PROVIDER_MODEL = "<installed-compatible-model>"
+$env:ZOOID_PROVIDER_MODEL = "qwen3:1.7b"
 Remove-Item Env:ZOOID_PROVIDER_API_KEY -ErrorAction SilentlyContinue
 npm run chat
 ```
 
-If authentication is required, set `ZOOID_PROVIDER_API_KEY` only in the shell. Zooid does not auto-load `.env` in this checkpoint.
-
 ## Live provider qualification
 
-ZOOID-0003 provides:
-
 ```powershell
 npm run qualify:provider
 ```
-
-The runner creates an isolated session and performs two turns:
-
-1. turn 1 gives the real model a random marker;
-2. turn 2 asks for that exact marker using the same persisted Zooid session.
 
 PASS requires:
-- exactly four ordered complete messages;
-- the second response contains the exact random marker.
+- real endpoint response;
+- exactly four ordered complete persisted messages;
+- exact recovery of the random marker from the previous turn.
 
-Example PowerShell setup:
+ZOOID-0003 verified this against local Ollama `0.32.15` with `qwen3:1.7b`.
 
-```powershell
-git fetch origin
-git switch agent/zooid-0003-live-provider-qualification
-git pull --ff-only
-
-$env:ZOOID_PROVIDER = "openai-compatible"
-$env:ZOOID_PROVIDER_BASE_URL = "http://127.0.0.1:11434/v1"
-$env:ZOOID_PROVIDER_MODEL = "<installed-compatible-model>"
-Remove-Item Env:ZOOID_PROVIDER_API_KEY -ErrorAction SilentlyContinue
-$env:ZOOID_PROVIDER_TIMEOUT_MS = "120000"
-
-npm run qualify:provider
-```
-
-Optional evidence retention:
-
-```powershell
-$env:ZOOID_QUALIFY_KEEP_DATA = "1"
-npm run qualify:provider
-```
-
-Expected passing fields:
-
-```json
-{
-  "outcome": "PASS",
-  "messageCount": 4,
-  "orderedCompleteTranscript": true,
-  "markerRecovered": true
-}
-```
-
-Do not commit API keys or raw secret-bearing shell history. Record only sanitized qualification results.
+A 27B CPU-only model was also observed to exceed practical latency on the same host, which is treated as a performance/resource issue rather than a functional failure.
 
 ## CLI commands
 

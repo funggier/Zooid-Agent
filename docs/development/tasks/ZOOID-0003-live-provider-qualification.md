@@ -3,178 +3,143 @@
 ## Metadata
 
 - ID: ZOOID-0003
-- Status: BLOCKED_EXTERNAL_EXECUTION
+- Status: COMPLETE
 - Started: 2026-09-18
+- Completed: 2026-09-18
 - Repository: `funggier/Zooid-Agent`
 - Branch: `agent/zooid-0003-live-provider-qualification`
 - Base/main SHA: `cffc12030d345e9b04a63e918bff50c96b608a7b`
 - Base post-merge workflow: `35359739796` — SUCCESS, Ubuntu + Windows
-- Last verified harness SHA: `7b79e0d427c59d7706213c48fceb8cf65c59d5ef`
+- Verified harness SHA: `7b79e0d427c59d7706213c48fceb8cf65c59d5ef`
 - Harness workflow: `35360017018` — SUCCESS, Ubuntu + Windows, 24/24 tests
-- Previous task: [ZOOID-0002](ZOOID-0002-openai-compatible-provider.md)
-- Pull request: #3 (DRAFT; do not merge before live PASS)\n- Checkpoint report: [ZOOID-0003 live qualification checkpoint](../reports/ZOOID-0003-live-provider-qualification-checkpoint.md)
+- Current branch head before final evidence commit: `2b9ec0c415aa63dbbd15147289b79dfdefc6260e`
+- Pull request: #3
+- Historical blocked checkpoint: [ZOOID-0003 live qualification checkpoint](../reports/ZOOID-0003-live-provider-qualification-checkpoint.md)
+- Final report: [ZOOID-0003 live provider qualification report](../reports/ZOOID-0003-live-provider-qualification-report.md)
 - Phase: Basic Provider Chat
 
-## Why this task exists
+## Why this task existed
 
-ZOOID-0002 proved the HTTP protocol boundary only with deterministic loopback fixtures. The remaining Basic Provider Chat gate is evidence from a real compatible model endpoint.
+ZOOID-0002 proved the OpenAI-compatible HTTP boundary only with deterministic loopback fixtures. ZOOID-0003 existed to prove the same path against a real model endpoint and verify actual multi-turn session history.
 
-A mere HTTP 200 is not sufficient. The live gate must prove that Zooid can maintain a real two-turn conversation using its persisted session history.
-
-## Goal
-
-Provide and execute a repeatable live qualification that:
-
-1. requires explicit `openai-compatible` provider configuration;
-2. uses an isolated session root rather than normal user history;
-3. sends a random marker on turn 1;
-4. asks the same model to recover that marker on turn 2;
-5. verifies the persisted transcript is exactly four ordered complete messages;
-6. emits machine-readable PASS/FAIL/BLOCKED output;
-7. never prints or persists the configured API key;
-8. preserves optional evidence data only when explicitly requested.
+A mere HTTP 200 was explicitly insufficient. The live gate required a real model to recover an exact random marker from the previous turn using Zooid's persisted session.
 
 ## Acceptance
 
-A live run passes only when:
+The live gate required:
 
-- a real authorized compatible endpoint is reached;
-- turn 1 returns a non-error assistant response;
-- turn 2 returns the exact random marker from turn 1;
-- the persisted session contains user/assistant/user/assistant in order;
-- no provider secret appears in output;
-- endpoint/model and timestamp can be recorded without secret disclosure.
+- a real compatible endpoint;
+- turn 1 assistant response;
+- turn 2 exact marker recovery from the previous turn;
+- exactly four ordered complete persisted messages;
+- no provider secret in output;
+- reproducible endpoint/model/runtime evidence.
 
-Fixture success proves the harness, not the external endpoint.
+## Implementation
 
-## Scope
+The task added:
 
-In scope:
-- reusable qualification runner
-- CLI command `npm run qualify:provider`
-- machine-readable result
-- fixture tests for PASS and semantic FAIL
-- isolated temporary storage
-- optional kept evidence root
-- external live execution when reachable
-- final Basic Provider Chat phase decision
+- `npm run qualify:provider`;
+- random marker generation;
+- isolated qualification session storage;
+- exact transcript/order/status verification;
+- machine-readable PASS/FAIL/BLOCKED output;
+- deterministic PASS fixture that proves second HTTP request receives prior history;
+- semantic FAIL fixture when marker recovery does not occur.
 
-Out of scope:
-- Router/fallback
-- provider benchmarking/ranking
-- streaming/tool calls
-- installing Ollama or provisioning external credentials
-- committing credentials
-- treating a GitHub fixture as a live model
+## Deterministic verification
 
-## Configuration
+At SHA `7b79e0d427c59d7706213c48fceb8cf65c59d5ef`:
 
-Provider settings:
-
-- `ZOOID_PROVIDER=openai-compatible`
-- `ZOOID_PROVIDER_BASE_URL`
-- `ZOOID_PROVIDER_MODEL`
-- `ZOOID_PROVIDER_API_KEY` when required
-- `ZOOID_PROVIDER_TIMEOUT_MS` optional
-
-Qualification-only:
-
-- `ZOOID_QUALIFY_KEEP_DATA=1` keeps the generated temporary evidence root
-- `ZOOID_QUALIFY_DATA_DIR=<path>` uses an explicit isolated root and does not auto-delete it
-
-## Work slices
-
-### A — Qualification harness
-- [x] random-marker two-turn protocol
-- [x] transcript/order/status verification
-- [x] JSON PASS/FAIL/BLOCKED output
-- [x] secret-free output contract
-- [x] isolated temporary data root
-
-### B — Deterministic harness tests
-- [x] fixture PASS requires history on second request
-- [x] fixture semantic FAIL when marker is not recovered
-- [x] Ubuntu CI
-- [x] Windows CI
-- [x] 24/24 tests at workflow `35360017018`
-
-### C — External live gate
-- [ ] execute against an authorized real compatible model endpoint
-- [ ] record endpoint class/model without secret
-- [x] record current state as `BLOCKED_EXTERNAL_EXECUTION`
-- [ ] if PASS, close Basic Provider Chat and permit Router task
-- [x] while blocked, keep Router gated
-
-## Verified harness behavior
-
-At SHA `7b79e0d427c59d7706213c48fceb8cf65c59d5ef`, workflow `35360017018` passed Ubuntu and Windows.
-
-Observed Ubuntu suite:
+- workflow `35360017018`: SUCCESS
+- Ubuntu: PASS
+- Windows: PASS
 - tests: 24
 - pass: 24
 - fail: 0
-- qualification PASS fixture proves the second request receives the first turn history
-- qualification semantic FAIL fixture proves missing marker is not accepted
 
-## Blocker
+PR/checkpoint heads also passed subsequent Ubuntu/Windows workflows.
 
-**BLOCKED_EXTERNAL_EXECUTION**
+## Real host qualification
 
-This ChatGPT/GitHub execution context can change and validate repository state, but it cannot execute commands on the user's Windows host or reach that machine's loopback endpoint such as `127.0.0.1:11434`. No authorized external endpoint or credential is available to this session.
+Authorized host: `CDQ-P`
 
-Therefore no live model was contacted and Basic Provider Chat remains OPEN.
+Runtime:
+- Windows 10 Pro 22H2 / build 19045
+- Node.js `v24.18.0`
+- npm `11.16.0`
+- Ollama `0.32.15`
+- endpoint `http://127.0.0.1:11434/v1`
+- provider kind `openai-compatible`
 
-## Exact local execution handoff
+### Large-model observation
 
-From a Windows PowerShell shell in the repository:
+Existing model `qwen3.8:27b` was attempted first.
 
-```powershell
-git fetch origin
-git switch agent/zooid-0003-live-provider-qualification
-git pull --ff-only
+Observed:
+- Ollama reported model size ~18 GB;
+- processor: 100% CPU;
+- context: 32768;
+- Zooid live qualification turn 1 timed out after 180000 ms;
+- transcript correctly preserved the user message as `failed`;
+- no assistant message was fabricated;
+- a direct 8-token OpenAI-compatible request also timed out after ~30 seconds.
 
-$env:ZOOID_PROVIDER = "openai-compatible"
-$env:ZOOID_PROVIDER_BASE_URL = "http://127.0.0.1:11434/v1"
-$env:ZOOID_PROVIDER_MODEL = "<installed-compatible-model>"
-Remove-Item Env:ZOOID_PROVIDER_API_KEY -ErrorAction SilentlyContinue
-$env:ZOOID_PROVIDER_TIMEOUT_MS = "120000"
+Interpretation: this is a host/model responsiveness limitation under the observed CPU-only execution state, not evidence of a Zooid transport failure.
 
-npm run qualify:provider
-```
+### Functional live PASS
 
-If the endpoint requires a token, set it only in the shell:
+A smaller local model `qwen3:1.7b` was installed specifically to separate functional correctness from large-model performance.
 
-```powershell
-$env:ZOOID_PROVIDER_API_KEY = "<secret>"
-npm run qualify:provider
-```
-
-To retain the isolated qualification transcript:
-
-```powershell
-$env:ZOOID_QUALIFY_KEEP_DATA = "1"
-npm run qualify:provider
-```
-
-A passing result must contain at least:
+Observed real qualification result:
 
 ```json
 {
   "outcome": "PASS",
+  "provider": "openai-compatible",
+  "model": "qwen3:1.7b",
+  "baseUrl": "http://127.0.0.1:11434/v1",
   "messageCount": 4,
   "orderedCompleteTranscript": true,
-  "markerRecovered": true
+  "markerRecovered": true,
+  "firstResponseLength": 76,
+  "secondResponseLength": 42
 }
 ```
 
-Do not substitute a model name that is not actually installed/available. The base URL above is only an example for a local compatible endpoint.
+Runtime: approximately 16.08 seconds end-to-end for the two-turn qualification.
+
+The exact random marker and session ID were observed locally but are not required for long-term project state; the invariant is exact marker recovery with the same persisted session.
+
+## Host capability observation
+
+Snapshot from `CDQ-P`:
+
+- CPU: Intel Core Ultra 5 245K
+- cores/logical processors: 14 / 14
+- reported max clock: 4200 MHz
+- RAM: 31.46 GB total
+- free RAM at snapshot: 14.32 GB
+- graphics: Intel Graphics plus Parsec Virtual Display Adapter
+- Ollama large model observation: `qwen3.8:27b` running 100% CPU
+- C: 465.1 GB volume, ~17.3 GB free after qualification model install
+- T: 931.5 GB volume, ~643.1 GB free
+- multiple additional ~1 TB data volumes are present
+
+Practical consequence for Zooid architecture: one-small-model operation is realistic on this host, while large 27B local models can have very high latency when CPU-only. Scheduler/context design should therefore remain conservative and must not assume fast parallel inference.
+
+## Result
+
+**PASS**
+
+- harness: VERIFIED
+- real compatible endpoint: VERIFIED
+- real model multi-turn history: VERIFIED
+- exact marker recovery: VERIFIED
+- persisted ordered transcript: VERIFIED
+- Basic Provider Chat: COMPLETE
+- Provider Router gate: RELEASED
 
 ## Next action
 
-Run the exact qualification command from an authorized environment that can reach the real endpoint.
-
-- PASS → record sanitized JSON evidence, close ZOOID-0003, close Basic Provider Chat, then open the next Router task.
-- FAIL → retain the live result, diagnose the exact provider/model behavior, keep Router gated.
-- endpoint unavailable → retain `BLOCKED_EXTERNAL_EXECUTION`.
-
-Do not merge this task as phase-complete based only on fixture CI.
+Merge PR #3 after final CI is green. Then create the next numbered task for Provider Routing from the verified post-merge `main` baseline.
