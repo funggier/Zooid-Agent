@@ -97,6 +97,32 @@ test("normalizes auth and rate-limit HTTP status without exposing response bodie
   });
 });
 
+test("normalizes forbidden and server failures", async () => {
+  await withServer(async (request, response) => {
+    await readBody(request);
+    response.statusCode = 403;
+    response.end("forbidden");
+  }, async (baseUrl) => {
+    await assert.rejects(
+      () => providerFor(baseUrl).send(currentOnlyRequest()),
+      (error: unknown) =>
+        error instanceof ProviderError && error.kind === "auth",
+    );
+  });
+
+  await withServer(async (request, response) => {
+    await readBody(request);
+    response.statusCode = 503;
+    response.end("temporarily unavailable");
+  }, async (baseUrl) => {
+    await assert.rejects(
+      () => providerFor(baseUrl).send(currentOnlyRequest()),
+      (error: unknown) =>
+        error instanceof ProviderError && error.kind === "network",
+    );
+  });
+});
+
 test("normalizes malformed JSON and malformed schema", async () => {
   await withServer(async (request, response) => {
     await readBody(request);
