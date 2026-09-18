@@ -8,8 +8,8 @@
 - Base post-merge workflow: `35375409259` SUCCESS — Ubuntu + Windows
 - Previous completed task: ZOOID-0004 — Provider Routing Foundation
 - Current phase: Provider Routing follow-on
-- Current slice: Provider Configuration Service
-- Next action: Work Package B RED tests → minimal configuration service → Ubuntu/Windows GREEN
+- Current slice: Runtime catalog → Registry integration
+- Next action: Work Package C RED tests → catalog-backed runtime/reload → Ubuntu/Windows GREEN
 - Catalog principle: Adapter ≠ Provider Instance ≠ Model
 - Discovery policy: read-only; never auto-enable
 - Desired policy: enabled/disabled; removed means absent from active catalog
@@ -34,3 +34,12 @@ Do not reopen ZOOID-0004 implementation. It is merged and post-merge verified. Z
 - GREEN SHA: `1a35200f24b5b08c9b1da07f399b2c68c7da35f3`
 - GREEN workflow: `35375804129` — SUCCESS Ubuntu + Windows
 - tests: 48/48
+
+
+## Work Package B verified
+
+- RED SHA: `ac6a4ee6039558588c7db6951dd32da468143938`
+- RED workflow: `35376019986`
+- GREEN SHA: `4b8e5f234baa82c27d9c3e608612a7c24422ee86`
+- GREEN workflow: `35376109866` — SUCCESS Ubuntu + Windows
+- tests: 56/56

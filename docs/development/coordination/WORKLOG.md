@@ -1,5 +1,25 @@
 # Worklog
 
+## 2026-09-19 — ZOOID-0005 Work Package B configuration service GREEN
+
+RED:
+- `ac6a4ee6039558588c7db6951dd32da468143938`
+- workflow `35376019986`
+- 48 existing tests passed; new configuration-service suite failed because implementation did not yet exist.
+
+GREEN:
+- `4b8e5f234baa82c27d9c3e608612a7c24422ee86`
+- workflow `35376109866`
+- SUCCESS Ubuntu + Windows
+- 56/56 tests
+
+Verified reversible provider/model policy mutation, explicit duplicate/not-found errors, provider-removal history preservation, serialized concurrent writes and qwen3.8:27b-only catalog validity.
+
+Next: catalog-backed runtime/Registry reload.
+
+---
+
+
 ## 2026-09-19 — ZOOID-0005 Work Package A catalog GREEN
 
 RED:

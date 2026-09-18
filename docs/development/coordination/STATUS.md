@@ -16,7 +16,7 @@
 | --- | --- | --- | --- |
 | Basic provider chat | DOCUMENTED | COMPLETE | PASS — real local Ollama multi-turn |
 | Provider routing foundation | DOCUMENTED | COMPLETE — ZOOID-0004 | PASS — switching + real routed Ollama |
-| Provider configuration/discovery | DOCUMENTED — ZOOID-0005 | CATALOG_STORE_VERIFIED; CONFIG_SERVICE_IN_PROGRESS | PARTIAL |
+| Provider configuration/discovery | DOCUMENTED — ZOOID-0005 | CATALOG_AND_CONFIG_SERVICE_VERIFIED; RUNTIME_INTEGRATION_IN_PROGRESS | PARTIAL |
 | Durable tickets | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Recovery | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Context and Project | DOCUMENTED; four subplans | NOT_STARTED | NOT_RUN |
@@ -55,6 +55,16 @@ Work Package A:
 
 Catalog is versioned, atomic, strict-schema, secret-free by construction and preserves corrupt input rather than overwriting it.
 
+## Verified Provider Configuration Service
+
+Work Package B:
+- RED `ac6a4ee6039558588c7db6951dd32da468143938`: expected missing service implementation.
+- GREEN `4b8e5f234baa82c27d9c3e608612a7c24422ee86`.
+- workflow `35376109866`: SUCCESS Ubuntu + Windows.
+- 56/56 tests.
+
+The service serializes mutations, preserves history outside the catalog boundary, and keeps desired policy separate from future observed availability.
+
 ## Next action
 
-Implement Provider Configuration Service mutation semantics using deterministic tests and the verified catalog store.
+Integrate the catalog with ProviderRegistry through an adapter-factory and credential-resolver boundary while preserving the existing environment path.

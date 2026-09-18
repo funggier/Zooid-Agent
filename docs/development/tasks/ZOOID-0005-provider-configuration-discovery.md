@@ -160,13 +160,13 @@ Planned:
 - deterministic service tests
 
 Acceptance:
-- [ ] add provider instance using an already-supported adapter;
-- [ ] enable/disable provider reversibly;
-- [ ] remove provider from active catalog without touching session history;
-- [ ] add/enable/disable/remove model;
-- [ ] duplicate operations fail explicitly rather than silently replacing;
-- [ ] unavailable/observed state is not confused with disabled policy;
-- [ ] writes serialize through one durable service boundary.
+- [x] add provider instance using an already-supported adapter;
+- [x] enable/disable provider reversibly;
+- [x] remove provider from active catalog without touching session history;
+- [x] add/enable/disable/remove model;
+- [x] duplicate operations fail explicitly rather than silently replacing;
+- [x] unavailable/observed state is not confused with disabled policy;
+- [x] writes serialize through one durable service boundary.
 
 ### C — Runtime catalog → Registry integration
 
@@ -274,6 +274,29 @@ Implemented:
 - corrupt/schema-invalid catalog preservation via explicit error;
 - stable provider/model ordering on reopen.
 
+### 2026-09-19 — Work Package B verified
+
+TDD RED:
+- test-only SHA: `ac6a4ee6039558588c7db6951dd32da468143938`
+- workflow: `35376019986`
+- expected failure: 48 existing tests passed; configuration-service suite failed because the service module did not yet exist.
+
+Minimal GREEN:
+- implementation SHA: `4b8e5f234baa82c27d9c3e608612a7c24422ee86`
+- workflow: `35376109866` — SUCCESS Ubuntu + Windows
+- tests: 56 passed / 0 failed
+- live provider/network/model inference: none
+
+Verified:
+- existing adapter types can receive new provider instances through configuration;
+- provider enable/disable is reversible;
+- provider removal only mutates the active catalog and does not rewrite persisted session attribution;
+- model add/enable/disable/remove is provider-scoped;
+- duplicate and not-found operations fail explicitly;
+- desired policy does not invent observed availability;
+- one service instance serializes concurrent mutations without lost updates;
+- a `qwen3.8:27b`-only provider remains structurally valid regardless of expected latency.
+
 ## Next action
 
-Implement Work Package B using RED tests first: one Provider Configuration Service for add/enable/disable/remove provider and model operations with explicit conflict/not-found errors and serialized durable writes.
+Implement Work Package C with RED tests: catalog-backed runtime adapter factory, eligible-model Registry rebuild, credential resolver boundary, atomic reload and in-flight route preservation.
