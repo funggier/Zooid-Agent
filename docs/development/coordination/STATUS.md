@@ -1,16 +1,18 @@
 # Development Status
 
-**Updated:** 2026-09-08  
-**Repository:** funggier/Zooid-Agent — new repository  
+**Updated:** 2026-09-18  
+**Repository:** funggier/Zooid-Agent  
 **Planning:** DOCUMENTED  
-**Implementation:** NOT_STARTED  
-**Execution mode:** WAITING_FOR_USER_START
+**Implementation:** IN_PROGRESS  
+**Execution mode:** RUNNING  
+**Active task:** ZOOID-0001 — Basic Chat Foundation  
+**Working branch:** `agent/zooid-0001-basic-chat-foundation`
 
 ## Phase status
 
 | Phase | Plan | Code | Acceptance |
 | --- | --- | --- | --- |
-| Basic provider chat | DOCUMENTED | NOT_STARTED | NOT_RUN |
+| Basic provider chat | DOCUMENTED | IN_PROGRESS — ZOOID-0001 | NOT_RUN |
 | Provider routing | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Durable tickets | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Recovery | DOCUMENTED | NOT_STARTED | NOT_RUN |
@@ -21,14 +23,22 @@
 
 ## Current deliverable
 
-จัดทำ docs/development พร้อมเหตุผล สถาปัตยกรรม แผนทุกขั้น contracts/work packages/acceptance และ handoff จากการสนทนา เอกสารเก่าของ Hermes-derived fork ไม่ใช่ active plan ของ repository ใหม่นี้
+Repository development has moved from planning-only into implementation. The first durable numbered task is [ZOOID-0001](../tasks/ZOOID-0001-basic-chat-foundation.md).
+
+The immediate deliverable is a minimal runnable chat foundation with a fake provider, ordered session persistence, normalized provider contracts, tests and CI. Live provider qualification is deliberately after the fake-provider path is deterministic.
+
+## Development-history policy
+
+All GitHub development work now uses sequential files under `docs/development/tasks/`:
+
+`ZOOID-0001`, `ZOOID-0002`, ...
+
+Each task records origin/reason, scope, progress, evidence, decisions, blockers and exact next action. Old tasks remain in history after completion.
 
 ## Next action
 
-เมื่อผู้ใช้สั่งเริ่ม ให้ claim [prepare-basic-chat](../tasks/prepare-basic-chat.md) และทำ stack/provider assessment ก่อน foundation implementation ตาม [handoff](../guides/development-handoff.md)
+Build and verify the execution scaffold for ZOOID-0001, then update its progress/evidence and coordination state with exact commit/workflow results.
 
-## Decisions requiring evidence
+## Decisions still requiring evidence
 
-runtime/packaging stack, first live provider, SQLite driver, Windows support matrix และ CNX baseline revision ยังต้องตรวจจากสภาพแวดล้อมจริง ตาม [decision register](../decisions/design-decisions.md)
-
-ไม่มี background job/watch service ถูกสร้างจากงานเอกสารนี้
+First live provider, Windows qualification, later SQLite driver, packaging/update mechanism and CNX baseline revision remain evidence-driven decisions. No secret or live installation state belongs in this repository.
