@@ -171,14 +171,14 @@ Acceptance:
 ### C — Runtime catalog → Registry integration
 
 Acceptance:
-- [ ] adapter factory constructs supported runtime adapters from catalog entries;
-- [ ] Router does not special-case provider IDs or Ollama;
-- [ ] only eligible configured models enter the active ProviderRegistry;
-- [ ] credential references resolve through a separate resolver boundary;
-- [ ] unresolved required credential fails explicitly before dispatch;
-- [ ] legacy environment configuration remains usable until an explicit migration boundary is qualified;
-- [ ] catalog reload affects future route selections only;
-- [ ] an already snapshotted in-flight request retains its provider/model/adapter attribution even if provider/model is disabled or removed during execution.
+- [x] adapter factory constructs supported runtime adapters from catalog entries;
+- [x] Router does not special-case provider IDs or Ollama;
+- [x] only eligible configured models enter the active ProviderRegistry;
+- [x] credential references resolve through a separate resolver boundary;
+- [x] unresolved required credential fails explicitly before dispatch;
+- [x] legacy environment configuration remains usable until an explicit migration boundary is qualified;
+- [x] catalog reload affects future route selections only;
+- [x] an already snapshotted in-flight request retains its provider/model/adapter attribution even if provider/model is disabled or removed during execution.
 
 ### D — Discovery interface and Ollama inventory
 
@@ -297,6 +297,28 @@ Verified:
 - one service instance serializes concurrent mutations without lost updates;
 - a `qwen3.8:27b`-only provider remains structurally valid regardless of expected latency.
 
+### 2026-09-19 — Work Package C verified
+
+TDD RED:
+- test-only SHA: `5e7d3bfb97a5899c4ea1e8d4eedf122b08e87ae7`
+- workflow: `35376392829`
+- expected failure: 56 existing tests passed; new runtime suite failed because `provider-catalog-runtime.ts` did not yet exist.
+
+Minimal GREEN:
+- implementation SHA: `981d1284bb28b4a99d5145f75af70a0601a30ac2`
+- workflow: `35376510252` — SUCCESS Ubuntu + Windows
+- tests: 62 passed / 0 failed
+
+Verified:
+- enabled provider/model policy is the only catalog policy admitted to the Registry at this stage;
+- provider instance ID remains independent from adapter implementation identity;
+- built-in adapter factories create fake and OpenAI-compatible runtimes without Router special cases;
+- credential references resolve through a separate resolver and unresolved references fail before live Registry replacement;
+- Registry replacement validates the complete new registration set before swap;
+- failed reload leaves the old Registry intact;
+- existing environment-style runtime construction remains available;
+- catalog reload changes future route resolution while an in-flight request retains its original resolved provider and durable attribution.
+
 ## Next action
 
-Implement Work Package C with RED tests: catalog-backed runtime adapter factory, eligible-model Registry rebuild, credential resolver boundary, atomic reload and in-flight route preservation.
+Implement Work Package D using deterministic HTTP fixtures: generic read-only discovery result, Ollama inventory driver, availability overlay, and routable = enabled ∩ discovered for providers declaring authoritative discovery.

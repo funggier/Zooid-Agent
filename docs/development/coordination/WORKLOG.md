@@ -1,5 +1,25 @@
 # Worklog
 
+## 2026-09-19 — ZOOID-0005 Work Package C catalog runtime GREEN
+
+RED:
+- `5e7d3bfb97a5899c4ea1e8d4eedf122b08e87ae7`
+- workflow `35376392829`
+- 56 existing tests passed; new runtime suite failed because implementation did not yet exist.
+
+GREEN:
+- `981d1284bb28b4a99d5145f75af70a0601a30ac2`
+- workflow `35376510252`
+- SUCCESS Ubuntu + Windows
+- 62/62 tests
+
+Verified enabled-only Registry construction, adapter factory separation, credential resolver boundary, all-or-nothing Registry reload, legacy environment compatibility and in-flight route preservation across catalog reload.
+
+Next: read-only discovery and Ollama inventory.
+
+---
+
+
 ## 2026-09-19 — ZOOID-0005 Work Package B configuration service GREEN
 
 RED:

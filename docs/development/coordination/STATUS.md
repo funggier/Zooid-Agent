@@ -16,7 +16,7 @@
 | --- | --- | --- | --- |
 | Basic provider chat | DOCUMENTED | COMPLETE | PASS — real local Ollama multi-turn |
 | Provider routing foundation | DOCUMENTED | COMPLETE — ZOOID-0004 | PASS — switching + real routed Ollama |
-| Provider configuration/discovery | DOCUMENTED — ZOOID-0005 | CATALOG_AND_CONFIG_SERVICE_VERIFIED; RUNTIME_INTEGRATION_IN_PROGRESS | PARTIAL |
+| Provider configuration/discovery | DOCUMENTED — ZOOID-0005 | CATALOG_CONFIG_RUNTIME_VERIFIED; DISCOVERY_IN_PROGRESS | PARTIAL |
 | Durable tickets | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Recovery | DOCUMENTED | NOT_STARTED | NOT_RUN |
 | Context and Project | DOCUMENTED; four subplans | NOT_STARTED | NOT_RUN |
@@ -65,6 +65,16 @@ Work Package B:
 
 The service serializes mutations, preserves history outside the catalog boundary, and keeps desired policy separate from future observed availability.
 
+## Verified catalog-backed runtime
+
+Work Package C:
+- RED `5e7d3bfb97a5899c4ea1e8d4eedf122b08e87ae7`.
+- GREEN `981d1284bb28b4a99d5145f75af70a0601a30ac2`.
+- workflow `35376510252`: SUCCESS Ubuntu + Windows.
+- 62/62 tests.
+
+Runtime reload builds registrations before swapping the stable Registry, so failed credential resolution cannot partially replace live routes and in-flight requests retain the already-resolved provider.
+
 ## Next action
 
-Integrate the catalog with ProviderRegistry through an adapter-factory and credential-resolver boundary while preserving the existing environment path.
+Implement read-only discovery and authoritative Ollama model availability without allowing discovery to auto-enable configuration.
