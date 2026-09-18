@@ -1,5 +1,5 @@
-import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
+import { createInterface } from "node:readline";
 import { ChatService, isAbortError } from "../chat/chat-service.ts";
 import { ProviderError } from "../providers/contracts.ts";
 import { FakeProvider } from "../providers/fake-provider.ts";
@@ -8,18 +8,33 @@ import { FileSessionStore } from "../storage/file-session-store.ts";
 const store = new FileSessionStore();
 const provider = new FakeProvider({ delayMs: 50 });
 const chat = new ChatService({ provider, store });
-const readline = createInterface({ input, output });
+const readline = createInterface({ input, output, terminal: Boolean(input.isTTY && output.isTTY) });
 
 let session = await chat.createSession();
+let activeController: AbortController | undefined;
 
 output.write("Zooid — Powered by CogentNexus\n");
 output.write("Provider: fake (deterministic development mode)\n");
 output.write(`Session: ${session.id}\n`);
 output.write("Commands: /new, /open <session-id>, /exit\n\n");
 
+readline.on("SIGINT", () => {
+  if (activeController) {
+    activeController.abort();
+    output.write("\n");
+    return;
+  }
+
+  readline.close();
+});
+
+if (input.isTTY) {
+  readline.setPrompt("you> ");
+  readline.prompt();
+}
+
 try {
-  while (true) {
-    const text = await readline.question("you> ");
+  for await (const text of readline) {
     const trimmed = text.trim();
 
     if (trimmed === "/exit") {
@@ -29,26 +44,31 @@ try {
     if (trimmed === "/new") {
       session = await chat.createSession();
       output.write(`Opened new session: ${session.id}\n`);
+      promptIfInteractive();
       continue;
     }
 
     if (trimmed.startsWith("/open ")) {
       const sessionId = trimmed.slice("/open ".length).trim();
-      session = await chat.openSession(sessionId);
-      output.write(`Opened session: ${session.id} (${session.messages.length} messages)\n`);
+      try {
+        session = await chat.openSession(sessionId);
+        output.write(`Opened session: ${session.id} (${session.messages.length} messages)\n`);
+      } catch (error) {
+        output.write(`zooid> error: ${error instanceof Error ? error.message : "unknown error"}\n`);
+      }
+      promptIfInteractive();
       continue;
     }
 
     if (trimmed.length === 0) {
+      promptIfInteractive();
       continue;
     }
 
-    const controller = new AbortController();
-    const onSigint = () => controller.abort();
-    process.once("SIGINT", onSigint);
+    activeController = new AbortController();
 
     try {
-      const response = await chat.sendText(session.id, text, controller.signal);
+      const response = await chat.sendText(session.id, text, activeController.signal);
       output.write(`zooid> ${response.text}\n`);
     } catch (error) {
       if (isAbortError(error)) {
@@ -61,9 +81,17 @@ try {
         output.write("zooid> unknown error\n");
       }
     } finally {
-      process.removeListener("SIGINT", onSigint);
+      activeController = undefined;
     }
+
+    promptIfInteractive();
   }
 } finally {
   readline.close();
+}
+
+function promptIfInteractive(): void {
+  if (input.isTTY) {
+    readline.prompt();
+  }
 }
